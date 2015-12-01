@@ -1,0 +1,25 @@
+{
+  "name": "who-calls-the-fleet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Diablohu/WhoCallsTheFleetWeb.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Diablohu/WhoCallsTheFleetWeb/issues"
+  },
+  "homepage": "https://github.com/Diablohu/WhoCallsTheFleetWeb#readme",
+  "dependencies": {
+    "express": "^4.13.3"
+  },
+  "aceenv": {
+    "NODE_ENV": "production"
+  }
+}
