@@ -16,6 +16,22 @@ const db = {
 };
 
 var model;
+// FleetSession
+model = sequelize.define('FleetSession', {
+    sid: {
+        type: Sequelize.STRING,
+        primaryKey: true
+    },
+    expires: {
+        type: Sequelize.DATE,
+        allowNull: true
+    },
+    data: Sequelize.TEXT
+}, {
+    timestamps: false,
+    paranoid: false
+});
+db[model.getTableName()] = model;
 // FleetUser
 model = sequelize.define('FleetUser', {
     id: {
