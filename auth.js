@@ -72,7 +72,7 @@ module.exports = function(app) {
                     where: {
                         duoshuoId: duoshuoId
                     }
-                }).then(user => {
+                }).then(function(user) {
                     if(user === null) {
                         request('http://api.duoshuo.com/users/profile.json?user_id=' + duoshuoId, function(err, response, body) {
                             if(err)
