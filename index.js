@@ -47,6 +47,9 @@ app.use(session({
     resave: false
 }));
 
+const auth = require('./auth');
+auth(app);
+
 var server;
 if(app.get('ace'))
     server = app.listen(0, function() {
