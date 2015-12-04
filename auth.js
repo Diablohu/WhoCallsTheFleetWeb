@@ -1,3 +1,7 @@
+const passport = require('passport');
+const passportLocal = require('passport-local').Strategy;
+const request = require('request');
+
 function getSessionData(user) {
     return {
         id: user.id,
@@ -6,22 +10,7 @@ function getSessionData(user) {
     };
 }
 
-const request = require('request');
-const router = require('express').Router();
-router.get('/login', function(req, res, next) {
-    passport.authenticate('local', {
-        successRedirect: req.body && req.body.from || '/'
-    })(req, res, next);
-});
-router.get('/logout', function(req, res) {
-    req.logout();
-    res.redirectr(req.body && req.body.from || '/');
-});
-
 module.exports = function(app) {
-    const passport = require('passport');
-    const passportLocal = require('passport-local').Strategy;
-
     passport.serializeUser(function(user, done) {
         done(null, user.id);
     });
@@ -54,6 +43,11 @@ module.exports = function(app) {
         passwordField: 'code',
         passReqToCallback: true
     }, function(req, code, _, done) {
+        if(!code || code.trim() === '') {
+            done(null, false, 'Code needed.');
+            return;
+        }
+
         request.post({
             url: 'http://api.duoshuo.com/oauth2/access_token',
             form: {
@@ -66,6 +60,10 @@ module.exports = function(app) {
                 var data = JSON.parse(body);
                 //const accessToken = data.access_token;
                 const duoshuoId = data.user_id;
+                if(!duoshuoId) {
+                    done(null, false, 'Invalid code.');
+                    return;
+                }
 
                 const db = req.app.db;
                 db.FleetUser.findOne({
@@ -101,7 +99,22 @@ module.exports = function(app) {
 
     app.use(passport.initialize());
     app.use(passport.session());
+
+    const router = require('express').Router();
+
+    router.get('/login', function(req, res, next) {
+        passport.authenticate('local', {
+            successRedirect: req.body && req.body.from || '/'
+        })(req, res, next);
+    });
+
+    router.get('/logout', function(req, res) {
+        req.logout();
+        res.redirectr(req.body && req.body.from || '/');
+    });
+
     app.use('/', router);
+
     app.use(function(req, res, next) {
         if(req.isAuthenticated())
             next();
