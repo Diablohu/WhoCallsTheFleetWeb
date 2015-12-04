@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const passport = require('passport');
 const passportLocal = require('passport-local').Strategy;
 const request = require('request');
@@ -118,7 +119,7 @@ module.exports = function(app) {
     app.use(function(req, res, next) {
         if(req.isAuthenticated())
             next();
-        else if(req.path === '/api' || req.path.startsWith('/api/')) {
+        else if(_.startsWith(req.path, '/api/')) {
             var err = new Error('抱歉，您没有访问该资源的权限');
             err.status = 401;
             next(err);
