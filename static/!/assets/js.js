@@ -1,6 +1,8 @@
 "use strict";
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
@@ -9,8 +11,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _instanceof(left, right) { if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) { return right[Symbol.hasInstance](left); } else { return left instanceof right; } }
-
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
 
 var $window = $(window),
     $document = $(document),
@@ -1970,7 +1970,9 @@ _frame.modal = {
 			}
 		}
 
-		this.dom.container.addClass('on ' + settings.classname).data('customclass', settings.classname);
+		setTimeout(function () {
+			_frame.modal.dom.container.addClass('on ' + settings.classname).data('customclass', settings.classname);
+		}, 0);
 		_p.initDOM(this.dom.content);
 
 		this.dom.bg.off('click.blank_to_close').on('click.blank_to_close', function () {
@@ -2087,7 +2089,7 @@ _p.tip = {
 	},
 
 	show: function show(cont, el, pos) {
-		if ($('body').data('preventMouseover') || !cont) return !1;
+		if (!cont) return !1;
 
 		clearTimeout(this.timeout_fade);
 		this.timeout_fade = null;
@@ -2409,128 +2411,6 @@ jQuery.fn.extend({
 	}
 });
 
-_p.el.table = {
-	dom: {},
-
-	hover_column_getTable: function hover_column_getTable(path) {
-		function _check(index) {
-			if (path[index].tagName.toLowerCase() == 'table') return $(path[index]);
-
-			return _check(index + 1);
-		}
-		return _check(0);
-	},
-	hover_column_getTr: function hover_column_getTr(path) {
-		function _check(index) {
-			if (path[index].tagName.toLowerCase() == 'tr') return $(path[index]);
-
-			return _check(index + 1);
-		}
-		return _check(0);
-	},
-
-	hover_column_mouseenter: function hover_column_mouseenter(table, td_index) {
-		table.find('tbody tr td:nth-of-type(' + (parseInt(td_index) + 1) + ')').addClass('state-hover-column');
-	},
-	hover_column_mouseleave: function hover_column_mouseleave(table, td_index) {
-		table.find('tbody tr td:nth-of-type(' + (parseInt(td_index) + 1) + ')').removeClass('state-hover-column');
-	},
-
-	init_el: function init_el(el) {
-		if (el.data('is_init_table')) return !0;
-
-		el.data('is_init_table', !0);
-	},
-
-	init: function init(tar, els) {
-		tar = tar || $body;
-		els = els || tar.find('table');
-
-		if (!_p.el.table.is_init) {
-			$html.on('mouseenter.tablehover-column', 'body.hover table.hashover-column tbody td', function (e) {
-				if (e && e.originalEvent.path) {
-					var path = e.originalEvent.path,
-					    td = $(this).on('mouseleave.tablehover-column', function () {
-						_p.el.table.hover_column_mouseleave(table, index);
-						td.off('mouseleave.tablehover-column');
-					}),
-					    table = _p.el.table.hover_column_getTable(path),
-					    tr = _p.el.table.hover_column_getTr(path),
-					    index = $.inArray(td[0], tr.find('td'));
-					_p.el.table.hover_column_mouseenter(table, index);
-				}
-			});
-			_p.el.table.is_init = !0;
-		}
-
-		els.each(function () {
-			_p.el.table.init_el($(this));
-		});
-	}
-};
-
-_p.el.tabview = {
-	dom: {},
-	index: 0,
-
-	init_el: function init_el(el) {
-		if (el.data('is_init_tabview')) return !0;
-
-		var tabid = 'tabv' + _p.el.tabview.index,
-		    tabc = el.children('section'),
-		    tabs = $('<header/>').prependTo(el);
-
-		_p.el.tabview.dom[tabid] = el;
-
-		tabc.each(function (index) {
-			var _id = '_tabview-' + tabid + '-' + (index + 1),
-			    _content = $(this),
-			    title = _content.data('tabname');
-
-			$('<input />', {
-				'type': 'radio',
-				'name': '_tabview-' + tabid,
-				'id': _id,
-				'value': index + 1,
-				'class': 'tabview-switch'
-			}).data('tabview-content', _content).prop('checked', index == 0).on('change', function () {
-				if ($(this).prop('checked')) {
-					$(this).data('tabview-content').trigger('tabview-show');
-					_g.uriHash('tv_' + tabid, index + 1);
-				} else {
-					$(this).data('tabview-content').trigger('tabview-hide');
-				}
-			}).prependTo(el);
-
-			$('<label/>', {
-				'for': _id,
-				'html': title
-			}).appendTo(tabs);
-
-			if (!index) _content.trigger('tabview-show');
-		});
-
-		_p.el.tabview.index++;
-
-		$window.on('hashchange.tabview-' + tabid, function () {
-			var hash = _g.uriHash('tv_' + tabid);
-			if (hash) {
-				_p.el.tabview.dom[tabid].children('input[type="radio"].tabview-switch[value="' + hash + '"]').prop('checked');
-			}
-		});
-
-		el.data('is_init_tabview', !0);
-	},
-
-	init: function init(tar, els) {
-		tar = tar || $body;
-		els = els || tar.find('.tabview');
-
-		els.each(function () {
-			_p.el.tabview.init_el($(this));
-		});
-	}
-};
 $document.ready(function () {
 
 	$body = $('body');
@@ -2552,9 +2432,13 @@ _g.animate_duration_delay = 320;
 _g.inputIndex = 0;
 _g.lang = 'zh_cn';
 _g.joint = '・';
-_g.isNWjs = typeof node != 'undefined' || typeof nw != 'undefined';
-_g.isClient = _g.isNWjs ? !0 : !1;
 _g.defaultHqLv = 90;
+_g.shipMaxLv = 155;
+_g.isNWjs = typeof node != 'undefined' || typeof nw != 'undefined';
+
+_g.isWebApp = navigator.standalone || _g.uriSearch('utm_source') == 'web_app_manifest';
+
+_g.isClient = _g.isNWjs || _g.isWebApp;
 
 function eventName(event, name) {
 	name = name ? '.' + name : '';
@@ -2604,6 +2488,25 @@ _g.getStatRange = function (range) {
 	return _g.statRange[parseInt(range)];
 };
 
+_g.getSize = function (bytes, target) {
+	target = target.toUpperCase();
+
+	if (target[target.length - 1] == 'B') target = target.substr(0, target.length - 1);
+
+	function _r(r) {
+		return Math.floor(r * 100) / 100;
+	}
+
+	bytes = bytes / 1024;
+	if (target == 'K') return _r(bytes) + 'KB';
+	bytes = bytes / 1024;
+	if (target == 'M') return _r(bytes) + 'MB';
+	bytes = bytes / 1024;
+	if (target == 'G') return _r(bytes) + 'GB';
+	bytes = bytes / 1024;
+	if (target == 'T') return _r(bytes) + 'TB';
+};
+
 var _l = {};
 
 String.prototype.printf = function () {
@@ -2641,6 +2544,77 @@ _g.badgeError = function (cont) {
 
 _g.pageChangeBefore = function () {
 	_frame.dom.mobilemenu.prop('checked', !1);
+};
+_g.title = function (t) {
+	if (!t) {
+		var f = document.title.split(' - ');
+		if (f.length == 1) return f[0];
+		f.pop();
+		return f.join(' - ');
+	}
+	if (_frame.dom.title) _frame.dom.title.text(t === !0 ? '是谁呼叫舰队' : t);
+	return t;
+};
+
+_g.index = {
+	ships: {},
+	equipments: {}
+};
+_g.buildIndex = function () {
+	function _build(datalist, n) {
+		for (var _i in datalist) {
+			var ids = n == 'ships' ? datalist[_i].getSeriesData().map(function (o) {
+				return o.id;
+			}) : [datalist[_i].id];
+			if (ids.push && ids.length == 0) ids = [datalist[_i].id];
+			for (var j in datalist[_i].name) {
+				if (datalist[_i].name[j] && j != 'suffix') {
+					(function () {
+						var _n = datalist[_i].name[j].toLowerCase();
+						if (!_g.index[n][_n]) _g.index[n][_n] = [];
+						ids.forEach(function (thisId) {
+							if (!_g.index[n][_n].some(function (thisObj) {
+								return thisObj.id == thisId;
+							})) {
+								_g.index[n][_n].push(datalist[thisId]);
+							}
+						});
+					})();
+				}
+			}
+		}
+	}
+	_build(_g.data.ships, 'ships');
+	_build(_g.data.items, 'equipments');
+};
+_g.search = function (q, t) {
+	t = _g.index[t];
+	var r = [],
+	    e = [];
+	if (!t || !q) return r;
+	q = q.trim().toLowerCase();
+	function _concat(a) {
+		r = r.concat(a.filter(function (v) {
+			if (e.indexOf(t + v.id) > -1) return !1;
+			e.push(t + v.id);
+			return !0;
+		}));
+	}
+	if (t[q]) _concat(t[q]);
+	for (var _i2 in t) {
+		if (q !== _i2 && _i2.indexOf(q) > -1) {
+			_concat(t[_i2]);
+		}
+	}
+	return r;
+};
+_g.searchTest = function (q, t) {
+	var r = [];
+	q = _g.search(q, t);
+	for (var _i3 in q) {
+		r.push(q[_i3]._name || q[_i3].name[_g.lang]);
+	}
+	return r;
 };
 
 var _ga = {
@@ -2765,22 +2739,23 @@ var Formula = {
 			'apshell': 0,
 			'radar': 0
 		},
-		    powerTorpedo = function powerTorpedo() {
+		    powerTorpedo = function powerTorpedo(options) {
+			options = options || {};
 			var result = 0;
-			if ($.inArray(ship.type, Formula.shipType.Carriers) > -1) {
-				return -1;
+			if ($.inArray(ship.type, Formula.shipType.Carriers) > -1 && !options.isNight) {
+				return options.returnZero ? 0 : -1;
 			} else {
 				result = ship.stat.torpedo_max || 0;
 				ship.slot.map(function (carry, index) {
 					if (equipments_by_slot[index]) {
-						result += equipments_by_slot[index].type == Formula.equipmentType.TorpedoBomber ? 0 : equipments_by_slot[index].stat.torpedo || 0;
+						result += equipments_by_slot[index].type == Formula.equipmentType.TorpedoBomber && !options.isNight ? 0 : equipments_by_slot[index].stat.torpedo || 0;
 
 						if (star_by_slot[index]) {
 							var multipler = 0;
 
-							if ($.inArray(equipments_by_slot[index].type, Formula.equipmentType.Torpedos) > -1) multipler = 1.2;
+							if ($.inArray(equipments_by_slot[index].type, Formula.equipmentType.Torpedos) > -1) multipler = options.isNight ? 1 : 1.2;
 
-							if ($.inArray(equipments_by_slot[index].type, Formula.equipmentType.AAGuns) > -1) multipler = 1;
+							if ($.inArray(equipments_by_slot[index].type, Formula.equipmentType.AAGuns) > -1) multipler = options.isNight ? 1 : 1.2;
 							result += Math.sqrt(star_by_slot[index]) * multipler;
 						}
 					}
@@ -2849,7 +2824,7 @@ var Formula = {
 					return '-';
 				} else {
 					result = Formula.calcByShip.shellingPower(ship, equipments_by_slot, star_by_slot, rank_by_slot);
-					if (result && result > -1) return Math.floor(result) + 5;
+					if (result && result > -1) return Math.floor(result);
 					return '-';
 				}
 				break;
@@ -2857,7 +2832,7 @@ var Formula = {
 			case 'torpedo':
 			case 'torpedoDamage':
 				result = powerTorpedo();
-				if (result && result > -1) return Math.floor(result) + 5;
+				if (result && result > -1) return Math.floor(result);
 				return '-';
 				break;
 
@@ -2867,7 +2842,7 @@ var Formula = {
 				} else {
 					result = Formula.calcByShip.shellingPower(ship, equipments_by_slot, star_by_slot, rank_by_slot, {
 						isNight: !0
-					}) + powerTorpedo();
+					}) + powerTorpedo({ isNight: !0, returnZero: !0 });
 					if (count.torpedo >= 2) {
 						return '雷击CI ' + Math.floor(result * 1.5) + ' x 2';
 					} else if (count.main >= 3) {
@@ -3225,8 +3200,11 @@ Formula.calcByShip.shellingPower = function (ship, equipments_by_slot, star_by_s
 	if ($.inArray(ship.type, Formula.shipType.Carriers) > -1) {
 		isCV = !0;
 	} else {
-		equipments_by_slot.forEach(function (equipment) {
-			if (equipment && !isCV && $.inArray(equipment.type, Formula.equipmentType.CarrierBased) > -1) isCV = !0;
+		equipments_by_slot.some(function (equipment) {
+			if (equipment && !isCV && $.inArray(equipment.type, Formula.equipmentType.CarrierBased) > -1) {
+				isCV = !0;
+				return !0;
+			}
 		});
 	}
 
@@ -3244,7 +3222,7 @@ Formula.calcByShip.shellingPower = function (ship, equipments_by_slot, star_by_s
 				if ($.inArray(equipments_by_slot[index].type, Formula.equipmentType.SecondaryGuns) > -1) result += Math.sqrt((star_by_slot[index] || 0) * 1.5);
 			}
 		});
-		if (!torpedoDamage && !bombDamage) return -1;else result += (bombDamage * 1.3 + torpedoDamage + ship.stat.fire_max) * 1.5 + 50;
+		if (!torpedoDamage && !bombDamage) return -1;else result += Math.floor((Math.floor(bombDamage * 1.3) + torpedoDamage + ship.stat.fire_max) * 1.5) + 50;
 		return result;
 	} else {
 		result = ship.stat.fire_max || 0;
@@ -3256,19 +3234,17 @@ Formula.calcByShip.shellingPower = function (ship, equipments_by_slot, star_by_s
 				result += equipments_by_slot[index].stat.fire || 0;
 
 				if ($.inArray(ship.type, Formula.shipType.LightCruisers) > -1) {
-					if (equipments_by_slot[index].id == 4 || equipments_by_slot[index].id == 65) CLGunNavalNumber += 1;
-					if (equipments_by_slot[index].id == 119 || equipments_by_slot[index].id == 139) CLGunTwinNumber += 1;
+					if (equipments_by_slot[index].id == 4) CLGunNavalNumber += 1;
+					if (equipments_by_slot[index].id == 119 || equipments_by_slot[index].id == 65 || equipments_by_slot[index].id == 139) CLGunTwinNumber += 1;
 				}
 
 				if (star_by_slot[index]) {
 					if ($.inArray(equipments_by_slot[index].type, Formula.equipmentType.Torpedos.concat(Formula.equipmentType.Radars)) < 0) {
 						var multipler = 1;
 
-						if ($.inArray(equipments_by_slot[index].type, Formula.equipmentType.AntiSubmarines) > -1) multipler = 0.75;
+						if ($.inArray(equipments_by_slot[index].type, Formula.equipmentType.AntiSubmarines) > -1) multipler = options.isNight ? 0 : 0.75;
 
-						if ($.inArray(equipments_by_slot[index].type, Formula.equipmentType.LargeCalibers) > -1) {
-							if (options.isNight) multipler = 1;else multipler = 1.5;
-						}
+						if ($.inArray(equipments_by_slot[index].type, Formula.equipmentType.LargeCalibers) > -1) multipler = options.isNight ? 1 : 1.5;
 						result += Math.sqrt(star_by_slot[index]) * multipler;
 					}
 				}
@@ -3337,8 +3313,8 @@ Formula.calcByShip.losPower = function (ship, equipments_by_slot, star_by_slot, 
 
 	equipments_by_slot.forEach(function (equipment) {
 		if (equipment) {
-			for (var _i in x) {
-				if (Formula.equipmentType[_i] && Formula.equipmentType[_i].push && Formula.equipmentType[_i].indexOf(equipment.type) > -1) x[_i] += equipment.stat.los;
+			for (var _i4 in x) {
+				if (Formula.equipmentType[_i4] && Formula.equipmentType[_i4].push && Formula.equipmentType[_i4].indexOf(equipment.type) > -1) x[_i4] += equipment.stat.los;
 			}
 		}
 	});
@@ -3346,7 +3322,7 @@ Formula.calcByShip.losPower = function (ship, equipments_by_slot, star_by_slot, 
 	return Formula.calc.losPower(x);
 };
 
-var ItemBase = (function () {
+var ItemBase = function () {
 	function ItemBase() {
 		_classCallCheck(this, ItemBase);
 	}
@@ -3365,9 +3341,9 @@ var ItemBase = (function () {
 	}]);
 
 	return ItemBase;
-})();
+}();
 
-var Entity = (function (_ItemBase) {
+var Entity = function (_ItemBase) {
 	_inherits(Entity, _ItemBase);
 
 	function Entity(data) {
@@ -3380,9 +3356,9 @@ var Entity = (function (_ItemBase) {
 	}
 
 	return Entity;
-})(ItemBase);
+}(ItemBase);
 
-var Equipment = (function (_ItemBase2) {
+var Equipment = function (_ItemBase2) {
 	_inherits(Equipment, _ItemBase2);
 
 	function Equipment(data) {
@@ -3434,9 +3410,9 @@ var Equipment = (function (_ItemBase2) {
 	}]);
 
 	return Equipment;
-})(ItemBase);
+}(ItemBase);
 
-var Ship = (function (_ItemBase3) {
+var Ship = function (_ItemBase3) {
 	_inherits(Ship, _ItemBase3);
 
 	function Ship(data) {
@@ -3493,8 +3469,8 @@ var Ship = (function (_ItemBase3) {
 				return '/' + i + '/' + p + '.png';
 			};
 
-			for (var _i2 = 0; _i2 < series.length; _i2++) {
-				if (series[_i2].id == this.id) {
+			for (var _i5 = 0; _i5 < series.length; _i5++) {
+				if (series[_i5].id == this.id) {
 					switch (picId) {
 						case 0:
 						case 1:
@@ -3506,8 +3482,8 @@ var Ship = (function (_ItemBase3) {
 							return getURI(this.id, picId);
 							break;
 						default:
-							if (series[_i2].illust_delete) {
-								return getURI(series[_i2 - 1].id, picId);
+							if (series[_i5].illust_delete) {
+								return getURI(series[_i5 - 1].id, picId);
 							} else {
 								return getURI(this.id, picId);
 							}
@@ -3540,7 +3516,7 @@ var Ship = (function (_ItemBase3) {
 		key: 'getAttribute',
 		value: function getAttribute(attr, lvl) {
 			lvl = lvl || 1;
-			if (lvl > 150) lvl = 150;
+			if (lvl > Ship.lvlMax) lvl = Ship.lvlMax;
 
 			var getStatOfLvl = function getStatOfLvl(lvl, base, max) {
 				lvl = lvl || 1;
@@ -3627,8 +3603,8 @@ var Ship = (function (_ItemBase3) {
 		key: '_pics',
 		get: function get() {
 			var arr = [];
-			for (var _i3 = 0; _i3 < 15; _i3++) {
-				arr.push(this.getPic(_i3));
+			for (var _i6 = 0; _i6 < 15; _i6++) {
+				arr.push(this.getPic(_i6));
 			}
 			return arr;
 		}
@@ -3655,7 +3631,9 @@ var Ship = (function (_ItemBase3) {
 	}]);
 
 	return Ship;
-})(ItemBase);
+}(ItemBase);
+
+Ship.lvlMax = 155;
 
 _g.kancolle_calc = {
 	version: 3,
@@ -3737,28 +3715,30 @@ _g.kancolle_calc = {
 					'version': 3
 				};
 				data.forEach(function (data_fleet, i) {
-					result['f' + (i + 1)] = {};
-					data_fleet.forEach(function (data_ship, j) {
-						if (data_ship[0]) {
-							result['f' + (i + 1)]['s' + (j + 1)] = {
-								'id': parseInt(data_ship[0]),
-								'lv': parseInt(data_ship[1][0]) || null,
-								'luck': parseInt(data_ship[1][1]) || -1,
-								'items': {
-									'ix': {}
-								}
-							};
-							data_ship[2].forEach(function (id_item, k) {
-								if (id_item) {
-									result['f' + (i + 1)]['s' + (j + 1)].items['i' + (k + 1)] = {
-										'id': parseInt(id_item)
-									};
-									if (data_ship[3]) result['f' + (i + 1)]['s' + (j + 1)].items['i' + (k + 1)].rf = parseInt(data_ship[3][k]) || 0;
-									if (data_ship[4]) result['f' + (i + 1)]['s' + (j + 1)].items['i' + (k + 1)].rp = parseInt(data_ship[4][k]) || 0;
-								}
-							});
-						}
-					});
+					if (data_fleet) {
+						result['f' + (i + 1)] = {};
+						data_fleet.forEach(function (data_ship, j) {
+							if (data_ship && data_ship[0]) {
+								result['f' + (i + 1)]['s' + (j + 1)] = {
+									'id': parseInt(data_ship[0]),
+									'lv': parseInt(data_ship[1][0]) || null,
+									'luck': parseInt(data_ship[1][1]) || -1,
+									'items': {
+										'ix': {}
+									}
+								};
+								data_ship[2].forEach(function (id_item, k) {
+									if (id_item) {
+										result['f' + (i + 1)]['s' + (j + 1)].items['i' + (k + 1)] = {
+											'id': parseInt(id_item)
+										};
+										if (data_ship[3]) result['f' + (i + 1)]['s' + (j + 1)].items['i' + (k + 1)].rf = parseInt(data_ship[3][k]) || 0;
+										if (data_ship[4]) result['f' + (i + 1)]['s' + (j + 1)].items['i' + (k + 1)].rp = parseInt(data_ship[4][k]) || 0;
+									}
+								});
+							}
+						});
+					}
 				});
 				break;
 		}
@@ -3820,9 +3800,9 @@ Nedb.prototype._updateById = function () {
 	if (!this._updateByIdQueue || this._updateByIdQueue.running) return !1;
 
 	var _id = undefined;
-	for (var _i4 in this._updateByIdQueue) {
-		if (this._updateByIdQueue[_i4]) {
-			_id = _i4;
+	for (var _i7 in this._updateByIdQueue) {
+		if (this._updateByIdQueue[_i7]) {
+			_id = _i7;
 			break;
 		}
 	}
@@ -3838,11 +3818,11 @@ Nedb.prototype._updateById = function () {
 
 	this.update({
 		_id: _id
-	}, queue.docReplace, {}, (function (err, numReplaced) {
+	}, queue.docReplace, {}, function (err, numReplaced) {
 		queue.callback.call(this, err, numReplaced);
 		this._updateByIdQueue.running = !1;
 		this._updateById();
-	}).bind(this));
+	}.bind(this));
 };
 
 _g.log = function () {
@@ -3909,13 +3889,26 @@ _g.state2URI = function (state) {
 	}
 };
 
+_g.save = function (url, n) {
+	if (!_g.save_) _g.save_ = document.createElement('a');
+	_g.save_.href = url;
+	if (typeof _g.save_.download != 'undefined') _g.save_.download = n;else _g.save_.target = '_blank';
+	_g.save_.click();
+};
+
+_g.getScriptCanvas = function () {
+	var deferred = Q.defer();
+	$.getScript('/!/assets/lib.canvas.min.js', function () {
+		deferred.resolve();
+	});
+	return deferred.promise;
+};
+
 _frame.app_main = {
 	page: {},
 	page_dom: {},
 	page_html: {},
 	page_title: {},
-
-	bgimgs: [],
 
 	loading: ['dbs', 'bgimgs'],
 
@@ -3935,8 +3928,9 @@ _frame.app_main = {
 					_frame.dom.layout.addClass('ready');
 					$html.addClass('app-ready');
 					setTimeout(function () {
-						for (var _i5 = 0; _i5 < _frame.app_main.functions_on_ready.length; _i5++) {
-							_frame.app_main.functions_on_ready[_i5]();
+						var i = 0;
+						while (_frame.app_main.functions_on_ready[i]) {
+							_frame.app_main.functions_on_ready[i++]();
 						}
 					}, 1500);
 				}
@@ -3972,47 +3966,6 @@ _frame.app_main = {
 		if (stateObj['page']) {
 			this.load_page_func(stateObj['page']);
 		}
-	},
-
-	change_bgimg: function change_bgimg(bgimgs_new) {
-		if (!this.bgimgs.length) return !1;
-
-		var bgimgs = bgimgs_new && bgimgs_new.length ? bgimgs_new : this.bgimgs,
-		    img_new = bgimgs[_g.randInt(bgimgs.length)],
-		    img_old = this.cur_bgimg_el ? this.cur_bgimg_el.css('background-image') : null;
-
-		img_old = img_old ? img_old.split('/') : null;
-		img_old = img_old ? img_old[img_old.length - 1].split(')') : null;
-		img_old = img_old ? img_old[0] : null;
-
-		while (img_new == img_old) {
-			img_new = bgimgs[_g.randInt(bgimgs.length - 1)];
-		}
-
-		var img_new_blured = _g.path.bgimg_dir + 'blured/' + img_new;
-		this.bgimg_path = _g.path.bgimg_dir + img_new;
-		img_new = this.bgimg_path;
-
-		if (img_old) {
-			this.change_bgimg_oldEl = this.cur_bgimg_el;
-		}
-
-		this.cur_bgimg_el = $('<div/>').css('background-image', 'url(' + img_new + ')').appendTo(_frame.dom.bgimg).add($('<s' + (this.change_bgimg_fadein ? ' class="fadein"' : '') + '/>').css('background-image', 'url(' + img_new_blured + ')').appendTo(_frame.dom.nav)).add($('<s' + (this.change_bgimg_fadein ? ' class="fadein"' : '') + '/>').css('background-image', 'url(' + img_new_blured + ')').appendTo(_frame.dom.main));
-
-		if (_frame.dom.bg_controls) this.cur_bgimg_el = this.cur_bgimg_el.add($('<s' + (this.change_bgimg_fadein ? ' class="fadein"' : '') + '/>').css('background-image', 'url(' + img_new_blured + ')').appendTo(_frame.dom.bg_controls));
-
-		this.change_bgimg_fadein = !0;
-	},
-	change_bgimg_after: function change_bgimg_after(oldEl) {
-		oldEl = oldEl || this.change_bgimg_oldEl;
-		if (oldEl) {
-			this.change_bgimg_oldEl.remove();
-			this.change_bgimg_oldEl = null;
-		}
-	},
-
-	toggle_hidecontent: function toggle_hidecontent() {
-		_frame.dom.layout.toggleClass('hidecontent');
 	},
 
 	loading_queue: [],
@@ -4160,38 +4113,23 @@ _frame.app_main = {
 		var u = _g.state2URI({ page: page });
 
 		function callback() {
-			_frame.app_main.page_dom[page].trigger('show');
 			_frame.infos.hide();
 
 			if (!options.callback_modeSelection_select) {
-				_frame.app_main.title = _frame.app_main.navtitle[page];
-				_frame.infos.last = null;
-
 				document.title = _frame.app_main.page_title[u];
+				_g.title(_frame.app_main.navtitle[page] || !0);
 
 				_ga.counter(location.search);
 			}
 
 			if (_frame.app_main.cur_page == page) return page;
 
-			_frame.app_main.page_dom[page].appendTo(_frame.dom.main).removeClass('off').trigger('on');
-
-			if (_frame.app_main.cur_page) {
-				if (_frame.dom.navs[_frame.app_main.cur_page]) _frame.dom.navs[_frame.app_main.cur_page].removeClass('on');
-				if (_frame.app_main.page_dom[_frame.app_main.cur_page]) setTimeout((function (p) {
-					_frame.app_main.page_dom[p].addClass('off').trigger('pageoff').detach();
-				})(_frame.app_main.cur_page), 100);
-			}
-
-			if (_frame.dom.navs[page]) _frame.dom.navs[page].addClass('on');
+			Page.show(page);
 
 			if (!options.callback_modeSelection_select) {
 
 				if (page != 'about') Lockr.set('last_page', page);
 			}
-
-			_frame.dom.main.attr('data-theme', page);
-			_frame.app_main.cur_page = page;
 
 			_g.log('LOADED: ' + page);
 
@@ -4205,7 +4143,7 @@ _frame.app_main = {
 		if (!this.page_dom[page]) {
 			this.page_dom[page] = _frame.dom.main.find('.page-container[page="' + page + '"]');
 			if (this.page_dom[page].length) {
-				this.page_init(page);
+				Page.init(page);
 				this.page_title[u] = document.title;
 				callback();
 			} else {
@@ -4215,7 +4153,7 @@ _frame.app_main = {
 							_frame.app_main.page_dom[page] = $(html).appendTo(_frame.dom.main);
 							if (u != location.pathname) _frame.app_main.page_dom[page].addClass('off');
 
-							_frame.app_main.page_init(page);
+							Page.init(page);
 						}
 					},
 					successAfter: callback,
@@ -4230,79 +4168,34 @@ _frame.app_main = {
 		}
 	},
 
-	only_bg_on: function only_bg_on() {
-		if (this.only_bg) return !0;
-
-		if (!_frame.dom.bg_controls) {
-			_frame.dom.bg_controls = $('<div class="bg_controls"/>').on(eventName('transitionend', 'only_bg_off'), function (e) {
-				console.log(e);
-				if (e.currentTarget == e.target && e.originalEvent.propertyName == 'bottom' && _frame.dom.layout.hasClass('only_bg') && _frame.dom.bg_controls.offset().top >= $body.height()) {
-					_frame.dom.layout.removeClass('only_bg');
-					_frame.app_main.only_bg = !1;
-				}
-			}).appendTo(_frame.dom.layout);
-
-			this.cur_bgimg_el = this.cur_bgimg_el.add(this.cur_bgimg_el.eq(0).clone().appendTo(_frame.dom.bg_controls));
-
-			$('<button class="prev" icon="arrow-left"/>').on('click', function () {
-				var pathParse = _frame.app_main.bgimg_path.split('/'),
-				    index = $.inArray(pathParse[pathParse.length - 1], _frame.app_main.bgimgs) - 1;
-				if (index < 0) index = _frame.app_main.bgimgs.length - 1;
-				_frame.app_main.change_bgimg([_frame.app_main.bgimgs[index]]);
-			}).appendTo(_frame.dom.bg_controls);
-
-			$('<button class="back"/>').html('返回').on('click', function () {
-				_frame.app_main.only_bg_off();
-			}).appendTo(_frame.dom.bg_controls);
-
-			$('<button class="back"/>').html('保存图片').on('click', function () {
-				window.open(_frame.app_main.bgimg_path);
-			}).appendTo(_frame.dom.bg_controls);
-
-			$('<button class="next" icon="arrow-right"/>').on('click', function () {
-				var pathParse = _frame.app_main.bgimg_path.split('/'),
-				    index = $.inArray(pathParse[pathParse.length - 1], _frame.app_main.bgimgs) + 1;
-				if (index >= _frame.app_main.bgimgs.length) index = 0;
-				_frame.app_main.change_bgimg([_frame.app_main.bgimgs[index]]);
-			}).appendTo(_frame.dom.bg_controls);
-		}
-
-		_frame.dom.layout.addClass('only_bg');
-		setTimeout(function () {
-			_frame.dom.bg_controls.addClass('on');
-		}, 10);
-
-		this.only_bg = !0;
-	},
-	only_bg_off: function only_bg_off() {
-		if (!this.only_bg) return !0;
-		_frame.dom.bg_controls.removeClass('on');
-	},
-	only_bg_toggle: function only_bg_toggle() {
-		if (this.only_bg) return this.only_bg_off();
-		return this.only_bg_on();
-	},
-
 	init: function init() {
 		if (this.is_init) return !0;
 
 		_frame.dom.mobilemenu = _frame.dom.layout.children('#view-mobile-menu');
-		_frame.dom.nav = _frame.dom.layout.children('nav');
-		_frame.dom.logo = $('<button class="logo"/>').on(_g.event.animationend, function (e) {
+		_frame.dom.logo = $('<div class="logo"/>').on(_g.event.animationend, function () {
 			_frame.dom.logo.addClass('ready-animated');
-		}).appendTo(_frame.dom.nav);
+		}).appendTo(_frame.dom.layout);
+		_frame.dom.nav = _frame.dom.layout.children('nav');
 		_frame.dom.navlinks = _frame.dom.nav.children('.pages');
-		_frame.dom.globaloptions = _frame.dom.nav.children('section.options');
+		_frame.dom.globaloptions = _frame.dom.nav.children('section.options').append($('<button class="show_only_bg" icon="images"/>').on('click', function () {
+			BgImg.controlsToggle();
+		}));
 
-		_frame.dom.btnShowOnlyBg = $('<button class="show_only_bg" icon="images"/>').on('click', function () {
-			_frame.app_main.only_bg_toggle();
-		}).appendTo(_frame.dom.globaloptions);
-		_frame.dom.btnShowOnlyBgBack = $('<button class="show_only_bg_back" icon="arrow-set2-left"/>').on('click', function () {
-			_frame.app_main.only_bg_off();
-		}).appendTo(_frame.dom.nav);
-
+		if (_g.isClient) {
+			_frame.dom.btnsHistory = $('<div class="history"/>').insertBefore(_frame.dom.navlinks);
+			_frame.dom.btnHistoryBack = $('<button class="button back" icon="arrow-set2-left"/>').on({
+				'click': function click() {
+					_frame.dom.btnHistoryForward.removeClass('disabled');
+					history.back();
+				}
+			}).appendTo(_frame.dom.btnsHistory);
+			_frame.dom.btnHistoryForward = $('<button class="button forward disabled" icon="arrow-set2-right"/>').on('click', function () {
+				history.forward();
+			}).appendTo(_frame.dom.btnsHistory);
+		}
 		_frame.dom.main = _frame.dom.layout.children('main');
-		_frame.dom.bgimg = $('<div class="bgimg" />').appendTo(_frame.dom.layout);
+
+		_frame.dom.title = _frame.dom.nav.children('.title').children('span');
 		$('<div class="nav-mask"/>').appendTo(_frame.dom.layout).on('click', function () {
 			_frame.dom.mobilemenu.prop('checked', !1);
 		});
@@ -4326,21 +4219,12 @@ _frame.app_main = {
 				});
 				_frame.app_main.navtitle[p] = t;
 				if (!$el.hasClass('button')) $el = $el.parent();
-				_frame.dom.navs[p] = $el;
+				_frame.dom.navs[p] = $el.on('click', function () {
+					Page.resetScroll(p);
+				});
 			});
 			return _frame.app_main.nav;
-		}).then(function () {
-			for (var _i6 = 0; _i6 < _g.bgimg_count; _i6++) {
-				_frame.app_main.bgimgs.push(_i6 + '.jpg');
-			}
-
-			_frame.app_main.change_bgimg();
-			_frame.app_main.loaded('bgimgs');
-
-			_g.log('BGs: ' + _frame.app_main.bgimgs.join(', '));
-
-			return _frame.app_main.bgimgs;
-		}).then(function () {
+		}).then(BgImg.init).then(function () {
 			_g.log('Preload All DBs (JSON ver.): START');
 
 			var dbchain = Q(),
@@ -4468,13 +4352,14 @@ _frame.app_main = {
 				} else if (parse.infos) {
 					_frame.infos.click(el.attr('data-infos', '[[' + parse.infos.toUpperCase() + '::' + parse.id + ']]'));
 				}
+			},
+			    link_external = function link_external(e) {
+				if (e.currentTarget.getAttribute('href').indexOf('//' + location.host) < 0) {
+					return e.currentTarget.setAttribute('target', '_blank');
+				}
 			};
 
-			$body.on('click.global_delegate_page', 'a[href^="?page="]', link_page).on('click.global_delegate_infos', 'a[href^="?infos="]', link_infos).on('click.global_delegate_default', 'a[href^="/"]', link_default);
-
-			_frame.dom.bgimg.on(_g.event.animationend, 'div', function () {
-				_frame.app_main.change_bgimg_after();
-			});
+			$body.on('click.global_delegate_page', 'a[href^="?page="]', link_page).on('click.global_delegate_infos', 'a[href^="?infos="]', link_infos).on('click.global_delegate_default', 'a[href^="/"]', link_default).on('click.global_external_links pointerdown.global_external_links', 'a:not([target]):not([href^="/"]):not([href^="javascript:"])', link_external);
 
 			return !0;
 		}).then(function () {
@@ -4482,6 +4367,7 @@ _frame.app_main = {
 		}).catch(function (err) {
 			_g.error(err);
 		}).done(function () {
+			_g.buildIndex();
 			_g.log('Global initialization DONE');
 		});
 
@@ -4492,18 +4378,13 @@ _frame.app_main = {
 _g.error = function (err) {
 	if (!_instanceof(err, Error)) err = new Error(err);
 
+	_g.badgeError(_instanceof(err, Error) ? err.message : err);
 	_g.log(err);
 };
 
 var debugmode = !1;
 
-_frame.app_main.page_init = function (page, $page) {
-	$page = $page || this.page_dom[page];
-	if (this.page[page] && this.page[page].init) this.page[page].init($page);
-	_p.initDOM($page);
-};
-
-var ShareBar = (function () {
+var ShareBar = function () {
 	function ShareBar(options) {
 		_classCallCheck(this, ShareBar);
 
@@ -4520,7 +4401,7 @@ var ShareBar = (function () {
 		value: function create() {
 			this.el = $('<div class="sharebar"/>');
 
-			this.settings.sites.forEach((function (site) {
+			this.settings.sites.forEach(function (site) {
 				var link = $('<a/>', {
 					'class': 'sharebar-share sharebar-site-' + site,
 					'data-share-site': site,
@@ -4530,16 +4411,16 @@ var ShareBar = (function () {
 				}).appendTo(this.el);
 
 				if (this.settings.modifyItem) this.settings.modifyItem(link);
-			}).bind(this));
+			}.bind(this));
 
-			this.el.on('click.sharebar-share', 'a[data-share-site]', (function (e, is_to_launch) {
+			this.el.on('click.sharebar-share', 'a[data-share-site]', function (e, is_to_launch) {
 				var $el = $(e.target),
 				    site = $el.attr('data-share-site');
 				$el.attr({
 					'href': 'http://www.jiathis.com/send/?webid=' + site + '&url=' + encodeURIComponent(this.getContent('url', location.href)) + '&title=' + encodeURIComponent(this.getContent('title', document.title)) + '&summary=' + encodeURIComponent(this.getContent('summary', $('meta[name="description"]').attr('content'))) + (this.settings.uid ? '&uid=' + this.settings.uid : '') + (this.settings.appkey[site] ? '&appkey=' + this.settings.appkey[site] : ''),
 					'target': '_blank'
 				});
-			}).bind(this));
+			}.bind(this));
 
 			return this.el;
 		}
@@ -4553,7 +4434,7 @@ var ShareBar = (function () {
 	}]);
 
 	return ShareBar;
-})();
+}();
 
 ShareBar.defaults = {
 	sites: ['tsina', 'tqq', 'cqq', 'twitter', 'tieba'],
@@ -4575,11 +4456,13 @@ var duoshuoQuery = {
 	} };
 
 (function () {
-	var ds = document.createElement('script');
-	ds.type = 'text/javascript';ds.async = !0;
-	ds.src = 'http://static.duoshuo.com/embed.js';
-	ds.charset = 'UTF-8';
-	(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+	if (!_g.isClient) {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = !0;
+		ds.src = 'http://static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+	}
 })();
 _tmpl.improvement = function (equipment, improvement_index, requirement_index, returnHTML) {
 	if (typeof equipment == 'undefined') return !1;
@@ -4642,14 +4525,14 @@ _tmpl.improvement_inEquipmentInfos = function (equipment, returnHTML) {
 		var upgrade_to = improvement['upgrade'] ? _g.data.items[improvement['upgrade'][0]] : !1,
 		    requirements = this.improvement__reqdetails(improvement.req);
 
-		html += '<span class="unit improvement improvement-details">' + '<b>' + (upgrade_to ? '<span class="indicator true">可升级为</span>' + '<a style="background-image:url(/!/assets/images/itemicon/' + upgrade_to.getIconId() + '.png)"' + ' href="?infos=equipment&id=' + upgrade_to['id'] + '"' + ' data-infos="[[EQUIPMENT::' + upgrade_to['id'] + ']]"' + ' data-tip="[[EQUIPMENT::' + upgrade_to['id'] + ']]"' + '>' + upgrade_to.getName(!0) + '</a>' + (improvement['upgrade'][1] ? '<i>+' + improvement['upgrade'][1] + '</i>' : '') : '<span class="indicator false">不可升级</span>') + '</b>' + requirements + _tmpl.improvement__resource(improvement, upgrade_to ? !0 : !1) + '</span>';
+		html += '<span class="unit improvement improvement-details">' + '<b>' + (upgrade_to ? '<span class="indicator true">可升级为</span>' + '<a class="equiptypeicon mod-left mod-' + upgrade_to.getIconId() + '"' + ' href="?infos=equipment&id=' + upgrade_to['id'] + '"' + ' data-infos="[[EQUIPMENT::' + upgrade_to['id'] + ']]"' + ' data-tip="[[EQUIPMENT::' + upgrade_to['id'] + ']]"' + '>' + upgrade_to.getName(!0) + '</a>' + (improvement['upgrade'][1] ? '<i>+' + improvement['upgrade'][1] + '</i>' : '') : '<span class="indicator false">不可升级</span>') + '</b>' + requirements + _tmpl.improvement__resource(improvement, upgrade_to ? !0 : !1) + '</span>';
 	}, this);
 
 	return _tmpl.export(html, returnHTML);
 };
 
 _tmpl.improvement__title = function (equipment, upgrade_to, upgrade_to_star) {
-	return '<strong>' + '<a style="background-image:url(/!/assets/images/itemicon/' + equipment.getIconId() + '.png)"' + ' href="?infos=equipment&id=' + equipment['id'] + '"' + ' data-infos="[[EQUIPMENT::' + equipment['id'] + ']]"' + ' data-tip="[[EQUIPMENT::' + equipment['id'] + ']]"' + '>' + equipment.getName(!0) + '</a>' + (upgrade_to ? '<b></b>' + '<a style="background-image:url(/!/assets/images/itemicon/' + upgrade_to.getIconId() + '.png)"' + ' href="?infos=equipment&id=' + upgrade_to['id'] + '"' + ' data-infos="[[EQUIPMENT::' + upgrade_to['id'] + ']]"' + ' data-tip="[[EQUIPMENT::' + upgrade_to['id'] + ']]"' + '>' + upgrade_to.getName(!0) + '</a>' + (upgrade_to_star ? '<i>+' + upgrade_to_star + '</i>' : '') : '') + '</strong>';
+	return '<strong>' + '<a class="equiptypeicon mod-left mod-' + equipment.getIconId() + '"' + ' href="?infos=equipment&id=' + equipment['id'] + '"' + ' data-infos="[[EQUIPMENT::' + equipment['id'] + ']]"' + ' data-tip="[[EQUIPMENT::' + equipment['id'] + ']]"' + '>' + equipment.getName(!0) + '</a>' + (upgrade_to ? '<b></b>' + '<a class="equiptypeicon mod-left mod-' + upgrade_to.getIconId() + '"' + ' href="?infos=equipment&id=' + upgrade_to['id'] + '"' + ' data-infos="[[EQUIPMENT::' + upgrade_to['id'] + ']]"' + ' data-tip="[[EQUIPMENT::' + upgrade_to['id'] + ']]"' + '>' + upgrade_to.getName(!0) + '</a>' + (upgrade_to_star ? '<i>+' + upgrade_to_star + '</i>' : '') : '') + '</strong>';
 };
 _tmpl.improvement__resource = function (improvement, upgradable) {
 	function getValue(v) {
@@ -4672,7 +4555,7 @@ _tmpl.improvement__resource = function (improvement, upgradable) {
 			case 3:
 				title = '升级';break;
 		}
-		resource[i] = '<span>' + '<em>' + title + '</em>' + (i == 3 && !upgradable ? '<i class="no">-</i>' : '<i class="dev_mat">' + getValue(improvement['resource'][i][0]) + '<i>(' + getValue(improvement['resource'][i][1]) + ')</i>' + '</i>' + '<i class="imp_mat">' + getValue(improvement['resource'][i][2]) + '<i>(' + getValue(improvement['resource'][i][3]) + ')</i>' + '</i>' + (improvement['resource'][i][4] ? '<a class="equipment"' + ' style="background-image:url(/!/assets/images/itemicon/' + _g.data.items[improvement['resource'][i][4]].getIconId() + '.png)"' + ' href="?infos=equipment&id=' + improvement['resource'][i][4] + '"' + ' data-infos="[[EQUIPMENT::' + improvement['resource'][i][4] + ']]"' + ' data-tip="[[EQUIPMENT::' + improvement['resource'][i][4] + ']]"' + '>' + _g.data.items[improvement['resource'][i][4]].getName(!0) + '<i>x' + getValue(improvement['resource'][i][5]) + '</i>' + '</a>' : '')) + '</span>';
+		resource[i] = '<span>' + '<em>' + title + '</em>' + (i == 3 && !upgradable ? '<i class="no">-</i>' : '<i class="dev_mat">' + getValue(improvement['resource'][i][0]) + '<i>(' + getValue(improvement['resource'][i][1]) + ')</i>' + '</i>' + '<i class="imp_mat">' + getValue(improvement['resource'][i][2]) + '<i>(' + getValue(improvement['resource'][i][3]) + ')</i>' + '</i>' + (improvement['resource'][i][4] ? '<a class="equiptypeicon mod-left mod-' + _g.data.items[improvement['resource'][i][4]].getIconId() + '"' + ' href="?infos=equipment&id=' + improvement['resource'][i][4] + '"' + ' data-infos="[[EQUIPMENT::' + improvement['resource'][i][4] + ']]"' + ' data-tip="[[EQUIPMENT::' + improvement['resource'][i][4] + ']]"' + '>' + _g.data.items[improvement['resource'][i][4]].getName(!0) + '<i>x' + getValue(improvement['resource'][i][5]) + '</i>' + '</a>' : '')) + '</span>';
 	}
 
 	return '<span>' + resource['all'] + resource['1'] + resource['2'] + resource['3'] + '</span>';
@@ -4763,10 +4646,10 @@ _tmpl.link_equipment = function (equipment, tagName, returnHTML, improvementStar
 	return _tmpl.export('<' + tagName + (tagName == 'a' ? ' href="?infos=equipment&id=' + equipmentId + '"' : '') + ' class="link_equipment"' + ' data-equipmentid="' + equipmentId + '"' + ' data-tip-position="right"' + ' data-infos="[[EQUIPMENT::' + equipmentId + ']]"' + ' data-tip="[[EQUIPMENT::' + equipmentId + ']]"' + '>' + '<i style="background-image:url(/!/assets/images/itemicon/' + equipment.getIconId() + '.png)"></i>' + '<span>' + equipment.getName(!0) + '</span>' + (improvementStar !== null ? '<em' + (improvementStar <= 0 ? ' class="zero"' : '') + '>+' + improvementStar + '</em>' : '') + '</' + tagName + '>', returnHTML);
 };
 
-_tmpl.link_ship = function (ship, tagName, returnHTML, mode) {
+_tmpl.link_ship = function (ship, tagName, returnHTML, mode, extraIllust) {
 	if (!ship) return !1;
 
-	if (tagName && (typeof tagName === 'undefined' ? 'undefined' : _typeof(tagName)) == 'object') return _tmpl.link_ship(ship, tagName['tagName'] || null, tagName['returnHTML'] || null, tagName['mode'] || null);
+	if (tagName && (typeof tagName === 'undefined' ? 'undefined' : _typeof(tagName)) == 'object') return _tmpl.link_ship(ship, tagName['tagName'] || null, tagName['returnHTML'] || null, tagName['mode'] || null, tagName['extraIllust'] || null);
 
 	tagName = tagName || 'a';
 	returnHTML = returnHTML || !1;
@@ -4780,7 +4663,8 @@ _tmpl.link_ship = function (ship, tagName, returnHTML, mode) {
 	}
 
 	var content = '',
-	    shipType = ship.getType();
+	    shipType = ship.getType(),
+	    hasExtraIllust = !1;
 
 	switch (mode) {
 		case 'names':
@@ -4796,7 +4680,20 @@ _tmpl.link_ship = function (ship, tagName, returnHTML, mode) {
 			break;
 	}
 
-	return _tmpl.export('<' + tagName + (tagName == 'a' ? ' href="?infos=ship&id=' + shipId + '"' : '') + ' class="link_ship" data-shipid="' + shipId + '" data-infos="[[SHIP::' + shipId + ']]">' + '<img src="' + node.path.normalize(_g.path.pics.ships) + '/' + shipId + '/0.png"/>' + '<span>' + content + '</span>' + '</' + tagName + '>', returnHTML);
+	if (extraIllust) {
+		(function () {
+			var seriesData = ship.getSeriesData();
+			seriesData.forEach(function (data_cur, i) {
+				hasExtraIllust = data_cur.illust_extra && data_cur.illust_extra.length && data_cur.illust_extra[0] ? !0 : !1;
+				if (!hasExtraIllust && data_cur.illust_delete) {
+					var data_prev = i ? seriesData[i - 1] : null;
+					if (data_prev) hasExtraIllust = data_prev.illust_extra && data_prev.illust_extra.length && data_prev.illust_extra[0] ? !0 : !1;
+				}
+			});
+		})();
+	}
+
+	return _tmpl.export('<' + tagName + (tagName == 'a' ? ' href="?infos=ship&id=' + shipId + '"' : '') + (' class="link_ship" data-shipid="' + shipId + '" data-infos="[[SHIP::' + shipId + ']]"') + (hasExtraIllust ? ' icon="hanger"' : '') + '>' + ('<img src="' + node.path.normalize(_g.path.pics.ships) + '/' + shipId + '/0.png"/>') + ('<span>' + content + '</span>') + ('</' + tagName + '>'), returnHTML);
 };
 
 _tmpl.textlink_entity = function (entity, tagName, returnHTML) {
@@ -4837,21 +4734,29 @@ _tmpl.textlink_ship = function (ship, tagName, returnHTML) {
 	return _tmpl.export('<' + tagName + (tagName == 'a' ? ' href="?infos=ship&id=' + shipId + '"' : '') + ' data-shipid="' + shipId + '" data-infos="[[SHIP::' + shipId + ']]">' + (shipType ? '[' + shipType + '] ' : '') + ship.getName(_g.joint) + '</' + tagName + '>', returnHTML);
 };
 
-var PAGE = (function () {
-	function PAGE($page) {
-		_classCallCheck(this, PAGE);
+var Page = function () {
+	function Page($page) {
+		_classCallCheck(this, Page);
+
+		$page.on({
+			'pageHide': function () {
+				this.modeSelectionExit();
+			}.bind(this)
+		});
 	}
 
-	_createClass(PAGE, [{
+	_createClass(Page, [{
 		key: 'modeSelectionEnter',
 		value: function modeSelectionEnter(callback_select, callback_enter) {
 			var _callback_select = undefined;
 
 			callback_select = callback_select || function () {};
-			_callback_select = (function () {
+			_callback_select = function () {
 				callback_select(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7], arguments[8], arguments[9], arguments[10]);
-				this.modeSelectionExit();
-			}).bind(this);
+				setTimeout(function () {
+					this.modeSelectionExit();
+				}.bind(this), 10);
+			}.bind(this);
 
 			_frame.app_main.mode_selection_callback = _callback_select;
 
@@ -4868,13 +4773,98 @@ var PAGE = (function () {
 		}
 	}]);
 
-	return PAGE;
-})();
+	return Page;
+}();
+
+Page.hide = function (page) {
+	page = page || _frame.app_main.cur_page;
+	if (typeof page == 'string') {
+		if (_frame.app_main.page_dom[page]) _frame.app_main.page_dom[page].addClass('off').trigger('pageHide').detach();
+		if (_frame.dom.navs[page]) _frame.dom.navs[page].removeClass('on');
+	} else {
+		page.addClass('off').trigger('pageHide').detach();
+		var p = page.attr('page');
+		if (p && _frame.dom.navs[p]) _frame.dom.navs[p].removeClass('on');
+	}
+	_frame.app_main.cur_page = null;
+};
+
+Page.show = function (page) {
+	page = page || _frame.app_main.cur_page;
+	var p = undefined;
+
+	if (typeof page == 'string') {
+		if (_frame.app_main.page_dom[page]) _frame.app_main.page_dom[page].appendTo(_frame.dom.main).removeClass('off').trigger('pageShow');
+		if (_frame.dom.navs[page]) _frame.dom.navs[page].addClass('on');
+		p = page;
+	} else {
+		page.appendTo(_frame.dom.main).removeClass('off').trigger('pageShow');
+		p = page.attr('page');
+	}
+
+	if (_frame.app_main.cur_page) Page.hide(_frame.app_main.cur_page);
+
+	if (p) {
+		if (_frame.dom.navs[p]) _frame.dom.navs[p].addClass('on');
+
+		_frame.dom.layout.attr('data-theme', p);
+		_frame.app_main.cur_page = p;
+	}
+};
+
+Page.resetScroll = function (page) {
+	page = page || _frame.app_main.cur_page;
+	if (typeof page == 'string') page = _frame.app_main.page_dom[page];
+
+	if (page && page.length) {
+		page.attr('scrollbody', 0);
+		page.find('[scrollbody]').each(function (i, el) {
+			el.setAttribute('scrollbody', 0);
+		});
+	}
+};
+
+Page.init = function (page) {
+	page = page || _frame.app_main.cur_page;
+	var p = undefined;
+
+	if (typeof page == 'string') {
+		p = page;
+		page = _frame.app_main.page_dom[page];
+	} else {
+		page.appendTo(_frame.dom.main).removeClass('off').trigger('pageShow');
+		p = page.attr('page');
+	}
+
+	if (!page || !page.length) return;
+
+	function handlerScroll(e) {
+		e.currentTarget.setAttribute('scrollbody', e.currentTarget.scrollTop);
+	}
+
+	if (p && _frame.app_main.page[p] && _frame.app_main.page[p].init) _frame.app_main.page[p].init(page);
+	_p.initDOM(page);
+
+	page.find('[scrollbody]').on('scroll', handlerScroll);
+
+	page.on({
+		'scroll': handlerScroll,
+		'pageShow.scrollbody': function pageShowScrollbody() {
+			page.scrollTop(page.attr('scrollbody') || 0);
+			page.find('[scrollbody]').each(function (i, el) {
+				el.scrollTop = el.getAttribute('scrollbody') || 0;
+				setTimeout(function () {
+					el.scrollTop = el.getAttribute('scrollbody') || 0;
+				}, 10);
+			});
+		}
+	});
+};
 
 _frame.app_main.page['fleets'] = {
 	init: function init($page) {
-		this.object = new ((function (_PAGE) {
-			_inherits(_class, _PAGE);
+		this.object = new (function (_Page) {
+			_inherits(_class, _Page);
 
 			function _class($page) {
 				_classCallCheck(this, _class);
@@ -4882,7 +4872,7 @@ _frame.app_main.page['fleets'] = {
 				var _this4 = _possibleConstructorReturn(this, Object.getPrototypeOf(_class).call(this, $page));
 
 				$page.on({
-					'show': function show() {
+					'pageShow': function pageShow() {
 						if (this.inited) {
 							$page.children('.tablelist').data('tablelist').refresh();
 						}
@@ -4893,15 +4883,15 @@ _frame.app_main.page['fleets'] = {
 			}
 
 			return _class;
-		})(PAGE))($page);
+		}(Page))($page);
 	}
 };
 
 _frame.app_main.page['ships'] = {
 	init: function init($page) {
 
-		this.object = new ((function (_PAGE2) {
-			_inherits(_class2, _PAGE2);
+		this.object = new (function (_Page2) {
+			_inherits(_class2, _Page2);
 
 			function _class2($page) {
 				_classCallCheck(this, _class2);
@@ -4912,27 +4902,31 @@ _frame.app_main.page['ships'] = {
 				_this5.tablelistObj = _this5.tablelist.data('tablelist');
 
 				$page.on({
-					'on': (function () {
-						if (!this.tablelistObj) this.tablelistObj = this.tablelist.data('tablelist');
-
-						if (this.tablelistObj) this.tablelistObj.thead_redraw();
-					}).bind(_this5),
-					'modeSelectionEnter': (function (e, callback_select) {
+					'modeSelectionEnter': function (e, callback_select) {
 						this.modeSelectionEnter(callback_select);
-					}).bind(_this5)
+					}.bind(_this5),
+					'pageShow': function () {
+						if (!this.tablelistObj) this.tablelistObj = this.tablelist.data('tablelist');
+					}.bind(_this5),
+					'pageHide': function () {
+						if (this.tablelistObj) {
+							this.tablelistObj.search();
+							this.tablelistObj.dom.searchInput.val('');
+						}
+					}.bind(_this5)
 				});
 				return _this5;
 			}
 
 			return _class2;
-		})(PAGE))($page);
+		}(Page))($page);
 	}
 };
 
 _frame.app_main.page['equipments'] = {
 	init: function init($page) {
-		this.object = new ((function (_PAGE3) {
-			_inherits(_class3, _PAGE3);
+		this.object = new (function (_Page3) {
+			_inherits(_class3, _Page3);
 
 			function _class3($page) {
 				_classCallCheck(this, _class3);
@@ -4943,29 +4937,30 @@ _frame.app_main.page['equipments'] = {
 				_this6.tablelistObj = _this6.tablelist.data('tablelist');
 
 				$page.on({
-					'on': (function () {
+					'modeSelectionEnter': function (e, callback_select, callback_enter) {
+						this.modeSelectionEnter(callback_select, callback_enter);
+					}.bind(_this6),
+					'pageShow': function () {
 						if (!this.tablelistObj) this.tablelistObj = this.tablelist.data('tablelist');
 
 						if (this.tablelistObj) {
 							this.tablelistObj.thead_redraw();
 							this.tablelistObj.apply_types();
 						}
-					}).bind(_this6),
-					'modeSelectionEnter': (function (e, callback_select, callback_enter) {
-						this.modeSelectionEnter(callback_select, callback_enter);
-					}).bind(_this6),
-					'show': (function () {
+					}.bind(_this6),
+					'pageHide': function () {
+						TablelistEquipments.types = [];
+						TablelistEquipments.shipId = null;
 						if (this.tablelistObj) {
-							this.tablelistObj.thead_redraw();
 							this.tablelistObj.apply_types();
 						}
-					}).bind(_this6)
+					}.bind(_this6)
 				});
 				return _this6;
 			}
 
 			return _class3;
-		})(PAGE))($page);
+		}(Page))($page);
 	}
 };
 
@@ -5010,7 +5005,7 @@ _frame.app_main.page['about'].journal_parse = function (raw) {
 	    scrapePtrn = /\[\[([^\:]+)\:([0-9]+)\]\]/gi,
 	    resultHTML = markdown.toHTML(raw);
 
-	while ((searchRes = scrapePtrn.exec(raw)) !== null) {
+	while (searchRes = scrapePtrn.exec(raw) !== null) {
 		try {
 			resultHTML = resultHTML.replace(searchRes[0], _tmpl['link_' + searchRes[1].toLowerCase()](searchRes[2], null, !0));
 		} catch (e) {}
@@ -5018,7 +5013,7 @@ _frame.app_main.page['about'].journal_parse = function (raw) {
 
 	searchRes = null;
 	scrapePtrn = /\[\[([^\:]+)\:([0-9]+)\:TEXT\]\]/gi;
-	while ((searchRes = scrapePtrn.exec(raw)) !== null) {
+	while (searchRes = scrapePtrn.exec(raw) !== null) {
 		try {
 			resultHTML = resultHTML.replace(searchRes[0], _tmpl['textlink_' + searchRes[1].toLowerCase()](searchRes[2], null, !0));
 		} catch (e) {}
@@ -5040,11 +5035,13 @@ _frame.app_main.page['about'].init = function (page) {
 
 	function addUpdateJournal(updateData) {
 		var id = 'update_journal_' + i++,
-		    section = $('<input type="checkbox" id="' + id + '"/>').prop('checked', i < 3 ? !0 : !1).add($('<section class="update_journal" data-version-' + updateData['type'] + '="' + updateData['version'] + '"/>').append($('<label for="' + id + '"/>').html(_frame.app_main.page['about'].journaltitle(updateData)))).appendTo(page);
+		    checkbox = $('<input type="checkbox" id="' + id + '"/>').prop('checked', i < 3 ? !0 : !1).appendTo(page),
+		    section = $('<section class="update_journal" data-version-' + updateData['type'] + '="' + updateData['version'] + '"/>').append($('<label for="' + id + '"/>').html(_frame.app_main.page['about'].journaltitle(updateData))).appendTo(page);
 		try {
 			$(_frame.app_main.page['about'].journal_parse(updateData['journal'])).appendTo(section);
 		} catch (e) {
 			_g.error(e);
+			checkbox.remove();
 			section.remove();
 		}
 	}
@@ -5082,43 +5079,43 @@ _frame.app_main.page['calctp'] = {
 			form.on('input', 'input', function () {
 				form.trigger('submit');
 			}).on('submit', function (e) {
+				e.preventDefault();
+
 				var d = form.serializeObject(),
 				    rA = 0,
 				    rS = 0;
 
-				for (var _i7 in d) {
-					var count = parseInt(d[_i7]) || 0;
-					switch (_i7) {
+				for (var _i8 in d) {
+					var count = parseInt(d[_i8]) || 0;
+					switch (_i8) {
 						case 'dd':
+							rS += 5 * count;
+							break;
 						case 'cl':
-							rA += 3 * count;
-							rS += 4.5 * count;
+							rS += 2 * count;
 							break;
 						case 'cav':
-							rA += 3 * count;
 							rS += 4 * count;
 							break;
 						case 'av':
-							rA += 8 * count;
-							rS += 10.5 * count;
+							rS += 9.5 * count;
 							break;
 						case 'lha':
+							rS += 12.25 * count;
+							break;
 						case 'ao':
-							rA += 10 * count;
-							rS += 13.5 * count;
+							rS += 14.75 * count;
 							break;
 
 						case 'e75':
-							rA += 3.5 * count;
 							rS += 5 * count;
 							break;
 						case 'e68':
-							rA += 5.5 * count;
-							rS += 8.3333 * count;
+							rS += 8 * count;
 							break;
 					}
 				}
-				e.preventDefault();
+				rA = rS * 0.7;
 				resultA.html(Math.floor(rA));
 				resultS.html(Math.floor(rS));
 			});
@@ -5128,18 +5125,594 @@ _frame.app_main.page['calctp'] = {
 
 _frame.gg = function () {
 	$.ajax({
-		'url': 'http://fleet.diablohu.com/!/gg/',
+		'url': 'http://fleet.diablohu.com/!/g/',
 		'method': 'get',
 		'dataType': 'html',
 		'success': function success(data) {
+			_g.isOnline = !0;
 			if (data) {
-				var gg = $('<div class="gg"/>').html(data).append($('<button type="button" class="close"/>').on('click', function () {
-					_frame.dom.layout.css('padding-bottom', '').removeClass('mod-gg');
-				}));
-				_frame.dom.layout.append(gg).addClass('mod-gg').css('padding-bottom', gg.height() + 1);
+				_frame.dom.layout.append($('<div class="g"/>').html(data).append($('<button type="button" class="close"/>').on('click', function () {
+					_frame.dom.layout.css('padding-bottom', '').removeClass('mod-g');
+				}))).addClass('mod-g');
 			}
 		}
 	});
+};
+
+var BgImg = function () {
+	function BgImg(options) {
+		_classCallCheck(this, BgImg);
+
+		options = options || {};
+		$.extend(!0, this, BgImg.defaults, options);
+	}
+
+	_createClass(BgImg, [{
+		key: 'show',
+		value: function show() {
+			return BgImg.change(this);
+		}
+	}, {
+		key: 'save',
+		value: function save() {
+			return BgImg.save(this);
+		}
+	}, {
+		key: 'append',
+		value: function append() {
+			if (this.isDefault) {
+				if (BgImg.controlsEls.listDefault) this.elThumbnail.appendTo(BgImg.controlsEls.listDefault);
+			} else {
+				if (BgImg.controlsEls.listCustomAdd) this.elThumbnail.insertBefore(BgImg.controlsEls.listCustomAdd);
+			}
+			if (BgImg.cur && BgImg.cur.name === this.name) this.elThumbnail.addClass('on');
+		}
+	}, {
+		key: 'delete',
+		value: function _delete() {
+			BgImg.delete(this);
+		}
+	}, {
+		key: 'filename',
+		get: function get() {
+			return this.isDefault ? this.name.substr(1) : this.name;
+		}
+	}, {
+		key: 'index',
+		get: function get() {
+			var i = -1;
+			BgImg.list.some(function (o, index) {
+				if (o.name === this.name) i = index;
+				return o.name === this.name;
+			}.bind(this));
+			return i;
+		}
+	}, {
+		key: 'els',
+		get: function get() {
+			if (!this._els) {
+				this._els = $('<s class="bgimg"/>').css('background-image', 'url(' + this.path + ')').add($('<s class="bgimg"/>').css('background-image', 'url(' + this.blur + ')')).add($('<s class="bgimg"/>').css('background-image', 'url(' + this.blur + ')')).add($('<s class="bgimg"/>').css('background-image', 'url(' + this.blur + ')'));
+			}
+			return this._els;
+		}
+	}, {
+		key: 'elThumbnail',
+		get: function get() {
+			if (!this._elThumbnail) {
+				this._elThumbnail = $('<dd/>').on('click', function () {
+					BgImg.change(this);
+				}.bind(this)).append($('<s/>').css('background-image', 'url(' + this.thumbnail + ')')).append($('<i/>').on('click', function (e) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					e.stopPropagation();
+					this.visible = !this.visible;
+				}.bind(this)));
+				if (!this.isDefault) this._elThumbnail.append($('<del/>').on('click', function (e) {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					e.stopPropagation();
+					this.delete();
+				}.bind(this)));
+			}
+			return this._elThumbnail;
+		}
+	}, {
+		key: 'path',
+		get: function get() {
+			if (!this._path) this._path = BgImg.getPath(this);
+			return this._path;
+		}
+	}, {
+		key: 'blur',
+		get: function get() {
+			if (!this._blured) this._blured = BgImg.getPath(this, 'blured');
+			return this._blured;
+		}
+	}, {
+		key: 'thumbnail',
+		get: function get() {
+			if (!this._thumbnail) this._thumbnail = BgImg.getPath(this, 'thumbnail');
+			return this._thumbnail;
+		}
+	}, {
+		key: 'visible',
+		get: function get() {
+			return this.elThumbnail.hasClass('is-visible');
+		},
+		set: function set(v) {
+			if (v) {
+				if (!this.visible) {
+					this.elThumbnail.addClass('is-visible');
+					BgImg.listVisible.push(this);
+					BgImg.namesHidden.forEach(function (n, i) {
+						if (n === this.name) BgImg.namesHidden.splice(i, 1);
+					}.bind(this));
+				}
+			} else {
+				if (this.visible) {
+					this.elThumbnail.removeClass('is-visible');
+					BgImg.listVisible.forEach(function (o, i) {
+						if (o === this) BgImg.listVisible.splice(i, 1);
+					}.bind(this));
+					BgImg.namesHidden.push(this.name);
+				}
+			}
+			Lockr.set('BgImgHidden', BgImg.namesHidden);
+		}
+	}]);
+
+	return BgImg;
+}();
+
+BgImg.default = {
+	isEnable: !0 };
+BgImg.list = [];
+BgImg.listVisible = [];
+
+BgImg.countCustom = 0;
+
+BgImg.init = function () {
+	if (BgImg.isInit) return BgImg.list;
+
+	_g.log('背景图: START');
+
+	BgImg.controlsInit();
+
+	_frame.dom.bgimg = $('<div class="bgimgs"/>').appendTo(_frame.dom.layout).on(_g.event.animationend, 's', function () {
+		BgImg.changeAfter();
+	});
+
+	var deferred = Q.defer(),
+	    _new = undefined;
+
+	BgImg.namesHidden = Lockr.get('BgImgHidden', []);
+
+	Q.fcall(BgImg.getDefaultImgs).then(function () {
+		BgImg.list.forEach(function (o) {
+			if (BgImg.namesHidden.indexOf(o.name) > -1) {
+				o.visible = !1;
+			} else {
+				o.visible = !0;
+			}
+		});
+
+		BgImg.ensureVisible();
+
+		BgImg.listVisible.some(function (o) {
+			if (!_new && o.name != Lockr.get('BgImgLast', '')) _new = o;
+			return o.name == Lockr.get('BgImgLast', '');
+		});
+
+		Lockr.set('BgImgLast', BgImg.listVisible[0].name);
+
+		BgImg.change(_new);
+		_frame.app_main.loaded('bgimgs');
+
+		BgImg.isInit = !0;
+
+		_g.log('背景图: DONE');
+		deferred.resolve();
+	});
+	return deferred.promise;
+};
+
+BgImg.getObj = function (o) {
+	if (typeof o == 'string') {
+		var r = undefined;
+		BgImg.list.some(function (obj) {
+			if (obj.name === o) r = obj;
+			return obj.name === o;
+		});
+		return r;
+	}
+
+	if (typeof o == 'number') {
+		return BgImg.list[o];
+	}
+
+	if (typeof o == 'undefined') {
+		return BgImg.cur;
+	}
+
+	return o;
+};
+
+BgImg.change = function (o) {
+	if (!BgImg.list.length) return;
+
+	if (typeof o == 'undefined') {
+		BgImg.ensureVisible();
+		o = BgImg.listVisible[_g.randInt(BgImg.listVisible.length)];
+		if (BgImg.cur && o.name === BgImg.cur.name) {
+			if (BgImg.listVisible.length == 1) return o;
+			return BgImg.change();
+		}
+	} else {
+		o = BgImg.getObj(o);
+		if (BgImg.cur && o.name === BgImg.cur.name) return o;
+	}
+
+	if (BgImg.cur) {
+		BgImg.lastToHide = BgImg.cur;
+		BgImg.cur.elThumbnail.removeClass('on');
+	}
+
+	o.els.addClass(BgImg.cur ? 'fadein' : '');
+	o.els.eq(0).appendTo(_frame.dom.bgimg);
+	o.els.eq(1).appendTo(_frame.dom.nav);
+	o.els.eq(2).appendTo(_frame.dom.main);
+	o.els.eq(3).appendTo(BgImg.controlsEls.bgimgs);
+	o.elThumbnail.addClass('on');
+
+	BgImg.cur = o;
+	return o;
+};
+
+BgImg.changeAfter = function () {
+	if (BgImg.lastToHide) {
+		BgImg.lastToHide.els.detach();
+		delete BgImg.lastToHide;
+	}
+};
+
+BgImg.upload = function () {
+	if (!BgImg.fileSelector) {
+		BgImg.fileSelector = $('<input type="file" class="none"/>').on('change', function (e) {
+			if (BgImg.fileSelector.val()) {
+				var _ret3 = function () {
+					var _done = function _done() {
+						BgImg.controlsEls.body.removeClass('is-loading');
+						BgImg.fileSelector.prop('disabled', !1);
+						BgImg.fileSelector.val('');
+						_g.log('BgImg.add() complete');
+					};
+
+					var o = undefined,
+					    mime = e.target.files[0].type;
+
+					if (!mime) {
+						_g.badgeError('文件格式未知');
+						_done();
+						return {
+							v: undefined
+						};
+					} else {
+						mime = mime.split('/');
+						if (mime[0].toLowerCase() != 'image') {
+							_g.badgeError('请选择图片文件');
+							_done();
+							return {
+								v: undefined
+							};
+						} else if (['bmp', 'jpg', 'jpeg', 'png', 'gif', 'tif', 'tiff', 'webp'].indexOf(mime[1].toLowerCase()) < 0) {
+							_g.badgeError('当前仅支持以下格式: BMP、JPG、PNG、GIF、TIFF');
+							_done();
+							return {
+								v: undefined
+							};
+						}
+					}
+
+					Q.fcall(function () {
+						BgImg.controlsEls.body.addClass('is-loading');
+						BgImg.fileSelector.prop('disabled', !0);
+						return BgImg.readFile(e);
+					}).then(function (obj) {
+						o = obj;
+						BgImg.list.push(o);
+						return BgImg.generate(o, 'thumbnail');
+					}).then(function (canvas) {
+						return BgImg.set(o, 'thumbnail', canvas);
+					}).then(function () {
+						return BgImg.generate(o, 'blured');
+					}).then(function (canvas) {
+						return BgImg.set(o, 'blured', canvas);
+					}).then(function () {
+						if (!BgImg.countCustom) {
+							BgImg.list.forEach(function (obj) {
+								if (obj.visible) obj.visible = !1;
+							});
+						}
+						o.append();
+						o.show();
+						o.visible = !0;
+						BgImg.countCustom++;
+					}).catch(function (err) {
+						_g.error(err, '自定义背景图');
+						if (o) o.delete();
+					}).done(_done);
+				}();
+
+				if ((typeof _ret3 === 'undefined' ? 'undefined' : _typeof(_ret3)) === "object") return _ret3.v;
+			}
+		});
+	}
+	BgImg.fileSelector.trigger('click');
+};
+
+BgImg.generate = function (o, t) {
+	o = BgImg.getObj(o);
+	var deferred = Q.defer(),
+	    img = undefined;
+
+	function _error(e) {
+		deferred.reject('读取图片文件发生错误');
+	}
+
+	switch (t) {
+		case 'thumbnail':
+			img = $('<img/>', {
+				'src': o.path
+			}).on({
+				'load': function load() {
+					var cv = canvas.downScale(img[0], 150 / Math.min(img[0].width, img[0].height));
+					img.remove();
+					deferred.resolve(cv);
+				},
+				'error': _error
+			}).appendTo($body);
+			break;
+
+		case 'blured':
+			img = $('<img/>', {
+				'src': o.path
+			}).on({
+				'load': function load() {
+					var cv = $('<canvas/>');
+					canvas.blur.image(img[0], cv[0], 20 * Math.min(img[0].width, img[0].height) / 1080);
+					img.remove();
+					deferred.resolve(cv[0]);
+				},
+				'error': _error
+			}).appendTo($body);
+			break;
+	}
+
+	return deferred.promise;
+};
+
+BgImg.getUniqueName = function (n) {
+	var o = undefined,
+	    i = 1,
+	    n2 = n;
+	if (typeof n == 'number') n = '' + n;
+	while (o = BgImg.getObj(n2)) {
+		n2 = n.split('.');
+		var ext = n2.pop();
+		n2 = n2.join('.') + '-' + i++ + '.' + ext;
+	}
+	return n2;
+};
+
+BgImg.ensureVisible = function () {
+	if (!BgImg.listVisible.length) {
+		BgImg.list.forEach(function (o) {
+			if (BgImg.countCustom && !o.isDefault || !BgImg.countCustom && o.isDefault) {
+				o.visible = !0;
+			}
+		});
+	}
+};
+
+BgImg.controlsInit = function () {
+	if (BgImg.controlsEls) return BgImg.controlsEls.container;
+
+	BgImg.controlsEls = {};
+	BgImg.controlsEls.body = $('<div class="bgcontrols"/>').appendTo(_frame.dom.layout).on(_g.event.animationend, function (e) {
+		if (e.currentTarget == e.target) {
+			if (BgImg.controlsShowing) {
+				BgImg.controlsHideAfter();
+			} else {
+				BgImg.controlsShowAfter();
+			}
+		}
+	}).append(BgImg.controlsEls.container = $('<div class="wrapper"/>').append(BgImg.controlsEls.bgimgs = $('<div class="bgimgs"/>')));
+
+	return BgImg.controlsEls.container;
+};
+BgImg.controlsShow = function () {
+	if (!BgImg.controlsEls || BgImg.controlsShowing) return;
+	if (!BgImg.controlsEls.listDefault) {
+		$('<div class="controls"/>').appendTo(BgImg.controlsEls.container).append(BgImg.controlsEls.btnViewingToggle = $('<button icon="eye"/>').on('click', BgImg.controlsViewingToggle)).append($('<button icon="floppy-disk"/>').on('click', function () {
+			BgImg.save();
+		})).append($('<button icon="arrow-set2-right"/>').on('click', BgImg.controlsHide));
+		$('<div class="list"/>').appendTo(BgImg.controlsEls.container).append($('<dl/>', {
+			'class': 'notes',
+			'html': '勾选的图片将会出现在背景图随机队列中'
+		})).append(BgImg.controlsEls.listCustom = $('<dl/>', {
+			'html': '<dt>自定义</dt>'
+		}).prepend(function () {
+			if (BgImg.quota) return $('<small/>').append(BgImg.controlsEls.listCustomQuotaUsed = $('<span>' + _g.getSize(BgImg.quotaUsed, 'm') + '</span>')).append(' / <span>' + _g.getSize(BgImg.quota, 'm') + '</span>');
+		}).append(BgImg.controlsEls.listCustomAdd = $('<dd/>', {
+			'class': 'add',
+			'html': '<s></s>'
+		}).on('click', function () {
+			BgImg.upload();
+		}))).append(BgImg.controlsEls.listDefault = $('<dl/>', {
+			'html': '<dt></dt>'
+		}));
+		BgImg.list.forEach(function (o) {
+			o.append();
+		});
+	}
+	_frame.dom.layout.addClass('mod-bgcontrols');
+};
+BgImg.controlsShowAfter = function () {
+	if (!BgImg.controlsEls || BgImg.controlsShowing) return;
+	BgImg.controlsEls.body.addClass('is-on');
+	BgImg.controlsShowing = !0;
+};
+BgImg.controlsHide = function () {
+	if (!BgImg.controlsEls || !BgImg.controlsShowing) return;
+	BgImg.controlsEls.body.addClass('is-hiding');
+};
+BgImg.controlsHideAfter = function () {
+	if (!BgImg.controlsEls || !BgImg.controlsShowing) return;
+	_frame.dom.layout.removeClass('mod-bgcontrols');
+	BgImg.controlsEls.body.removeClass('is-on is-hiding');
+	BgImg.controlsShowing = !1;
+};
+BgImg.controlsToggle = function () {
+	if (BgImg.controlsShowing) return BgImg.controlsHide();
+	return BgImg.controlsShow();
+};
+BgImg.controlsViewingToggle = function () {
+	BgImg.controlsEls.body.toggleClass('mod-viewing');
+	BgImg.controlsEls.btnViewingToggle.toggleClass('on');
+};
+
+BgImg.quota = 10 * 1024 * 1024;
+BgImg.quotaUsed = 0;
+
+BgImg.getDefaultImgs = function () {
+	var deferred = Q.defer();
+	for (var _i9 = _g.bgimg_count - 1; _i9 >= 0; _i9--) {
+		BgImg.list.push(new BgImg({
+			'name': '*' + _i9 + '.jpg',
+			'isDefault': !0
+		}));
+	}
+
+	BgImg.dataCustom = {};
+	localforage.getItem('bgcustomlist', function (err, value) {
+		BgImg.dataCustom = value || {};
+		for (var _i10 in BgImg.dataCustom) {
+			var o = BgImg.dataCustom[_i10];
+			o.name = _i10;
+			BgImg.list.push(new BgImg(o));
+			BgImg.countCustom++;
+			BgImg.quotaUsed += o.size;
+		}
+		BgImg.updateQuotaUsed();
+		deferred.resolve(BgImg.list);
+	});
+
+	return deferred.promise;
+};
+
+BgImg.updateQuotaUsed = function () {
+	if (BgImg.controlsEls.listCustomQuotaUsed) BgImg.controlsEls.listCustomQuotaUsed.html(_g.getSize(BgImg.quotaUsed, 'm'));
+};
+
+BgImg.getPath = function (o, t) {
+	o = BgImg.getObj(o);
+
+	if (o.isDefault) return _g.path.bgimg_dir + (t ? t + '/' : '') + o.filename;
+
+	if (t) return o['_' + t];
+
+	return o._path;
+};
+
+BgImg.save = function (o) {
+	o = BgImg.getObj(o);
+	_g.save(o.path, 'fleet.diablohu.com - ' + o.filename);
+};
+
+BgImg.readFile = function (e) {
+	var deferred = Q.defer();
+
+	Q.fcall(_g.getScriptCanvas).then(function () {
+		for (var _i11 = 0, f = undefined; f = e.target.files[_i11]; _i11++) {
+			if (BgImg.quotaUsed + f.size > BgImg.quota) {
+				deferred.reject('已超过 ' + _g.getSize(BgImg.quota, 'm') + ' 上限');
+				break;
+				return;
+			}
+
+			var reader = new FileReader();
+			reader.onload = function (theFile) {
+				return function (r) {
+					var n = BgImg.getUniqueName(theFile.name);
+					BgImg.quotaUsed += theFile.size;
+					BgImg.updateQuotaUsed();
+					BgImg.dataCustom[n] = {
+						'_path': r.target.result,
+						'size': theFile.size
+					};
+					localforage.setItem('bgcustomlist', BgImg.dataCustom, function (err, result) {
+						deferred.resolve(new BgImg({
+							'name': n,
+							'_path': r.target.result,
+							'size': theFile.size
+						}));
+					});
+				};
+			}(f);
+			reader.readAsDataURL(f);
+		}
+	});
+
+	return deferred.promise;
+};
+
+BgImg.set = function (o, t, canvas) {
+	o = BgImg.getObj(o);
+
+	var base64 = canvas.toDataURL("image/jpeg", t == 'blured' ? 0.4 : 0.6),
+	    deferred = Q.defer();
+
+	o['_' + t] = base64;
+	BgImg.dataCustom[o.name]['_' + t] = base64;
+
+	localforage.setItem('bgcustomlist', BgImg.dataCustom, function (err, result) {
+		deferred.resolve();
+	});
+
+	return deferred.promise;
+};
+
+BgImg.delete = function (o) {
+	o = BgImg.getObj(o);
+
+	var deferred = Q.defer();
+
+	o.elThumbnail.remove();
+	o.els.remove();
+
+	BgImg.listVisible.forEach(function (obj, i) {
+		if (obj === o) BgImg.listVisible.splice(i, 1);
+	});
+	BgImg.namesHidden.forEach(function (n, i) {
+		if (n === o.name) BgImg.namesHidden.splice(i, 1);
+	});
+
+	Lockr.set('BgImgHidden', BgImg.namesHidden);
+
+	delete BgImg.dataCustom[o.name];
+
+	localforage.setItem('bgcustomlist', BgImg.dataCustom, function (err, result) {
+		BgImg.countCustom--;
+		BgImg.quotaUsed -= o.size;
+		BgImg.updateQuotaUsed();
+		BgImg.list.forEach(function (obj, i) {
+			if (obj === o) BgImg.list.splice(i, 1);
+		});
+		if (BgImg.cur === o) BgImg.change();
+		deferred.resolve();
+	});
+
+	return deferred.promise;
 };
 
 _frame.infos = {
@@ -5253,8 +5826,6 @@ _frame.infos = {
 		type = type.toLowerCase();
 		if (!isNaN(id)) id = parseInt(id);
 
-		var title = null;
-
 		if (!this.dom) {
 			this.dom = {
 				'main': _frame.dom.main.children('.page-container.infos')
@@ -5270,13 +5841,18 @@ _frame.infos = {
 					_frame.infos.hide_finish();
 				}
 			});
+			if (_frame.dom.btnHistoryBack) _frame.dom.btnHistoryBack.on(eventName('transitionend', 'infos_hide'), function (e) {
+				if (e.currentTarget == e.target && e.originalEvent.propertyName == 'opacity' && _frame.dom.btnHistoryBack.css('opacity') == 0) {
+					_frame.infos.hide_finish();
+				}
+			});
 		}
 
 		_frame.dom.layout.addClass('is-infos-show');
 
 		this.curContent = type + '::' + id;
 
-		this.getContent(type, id, (function (cont) {
+		this.getContent(type, id, function (cont) {
 			this.dom.container.children().not(cont).each(function (i, el) {
 				var $el = $(el);
 				if ($el.css('opacity') == 0) $el.trigger('hidden');
@@ -5287,12 +5863,27 @@ _frame.infos = {
 				case 'equipment':
 				case 'entity':
 					this.dom.main.attr('data-infostype', type);
-					title = cont.attr('data-infos-title');
+
 					break;
 				case 'fleet':
 					this.dom.main.attr('data-infostype', 'fleet');
-					_frame.app_main.mode_selection_off();
+
 					TablelistEquipments.types = [];
+					break;
+			}
+
+			switch (type) {
+				case 'ship':
+					_g.title(_frame.app_main.navtitle.ships);
+					break;
+				case 'equipment':
+					_g.title(_frame.app_main.navtitle.equipments);
+					break;
+				case 'entity':
+					_g.title(_frame.app_main.navtitle.entities);
+					break;
+				case 'fleet':
+					_g.title(_frame.app_main.navtitle.fleets);
 					break;
 			}
 
@@ -5335,27 +5926,23 @@ _frame.infos = {
 
 			if (_frame.app_main.cur_page) {
 
-				if (_frame.dom.navs[_frame.app_main.cur_page]) _frame.dom.navs[_frame.app_main.cur_page].removeClass('on');
-				if (_frame.app_main.page_dom[_frame.app_main.cur_page]) _frame.app_main.page_dom[_frame.app_main.cur_page].addClass('off').trigger('pageoff').detach();
-				_frame.app_main.cur_page = null;
+				Page.hide(_frame.app_main.cur_page);
 			}
 
 			_frame.dom.main.attr('data-theme', cont.attr('data-theme') || type);
+			_frame.dom.layout.attr('data-theme', cont.attr('data-theme') || type);
 
 			setTimeout(function () {
 				_frame.dom.layout.addClass('is-infos-on');
 
-				if (title) {
-					_frame.app_main.title = title;
-					document.title = _frame.app_main.page_title[_g.state2URI({
-						'infos': type,
-						'id': id
-					})];
-				}
+				document.title = _frame.app_main.page_title[_g.state2URI({
+					'infos': type,
+					'id': id
+				})];
 
 				_ga.counter(location.search);
 			}, 1);
-		}).bind(this));
+		}.bind(this));
 	},
 
 	hide: function hide() {
@@ -5403,9 +5990,10 @@ _frame.infos = {
 
 _frame.infos.__ship_init = function ($el) {
 	var x = undefined,
-	    originalX = undefined,
+	    originalX = -1,
 	    startX = undefined,
 	    startY = undefined,
+	    startTime = undefined,
 	    deltaX = undefined,
 	    deltaY = undefined,
 	    isPanning = !1,
@@ -5414,8 +6002,9 @@ _frame.infos.__ship_init = function ($el) {
 	    illust = illustMain.children('div'),
 	    imgs = illust.children('span'),
 	    s = imgs.eq(0),
+	    n = 'e' + _g.timeNow(),
 	    labels = illustMain.children('label'),
-	    inputs = illustMain.children('input[type="radio"]').on('change', function (e) {
+	    inputs = illustMain.children('input[type="radio"]').on('change', function (e, scrollTime) {
 		var i = parseInt(e.target.getAttribute('value')) - 1;
 		if (!labels.eq(i).is(':visible')) {
 			i--;
@@ -5424,7 +6013,7 @@ _frame.infos.__ship_init = function ($el) {
 		if (isScrollSnap) {
 			illust.off('scroll').animate({
 				scrollLeft: imgs.eq(i)[0].offsetLeft
-			}, 200, function () {
+			}, typeof scrollTime == 'undefined' ? 200 : scrollTime, function () {
 				illust.on('scroll', scrollHandler);
 			});
 		} else {}
@@ -5440,36 +6029,60 @@ _frame.infos.__ship_init = function ($el) {
 		sCount = Math.floor(illustWidth / (s.outerWidth() * 0.95));
 	}
 	function scrollHandler() {
-		x = illust.scrollLeft();
-		if (!isPanning) {
-			requestAnimationFrame(scrollX);
+		if (originalX >= 0) {
+			x = illust.scrollLeft();
+			if (!isPanning) {
+				requestAnimationFrame(scrollX);
+			}
+			isPanning = !0;
 		}
-		isPanning = !0;
 	}
 	function scrollX() {
 		var delta = x - originalX,
 		    pDelta = (Math.floor(Math.abs(delta) / illustWidth) + (Math.abs(delta % illustWidth) > illustWidth / 2 ? 1 : 0)) * (x < originalX ? -1 : 1);
 
 		isPanning = !1;
-		if (delta !== 0) inputs.eq(inputCur + pDelta * sCount).prop('checked', !0);
+		if (delta !== 0) {
+			var t = inputCur + pDelta * sCount;
+			if (t < 0) t = 0;
+			if (t + sCount > inputs.length) t = inputs.length - sCount;
+
+			inputs.eq(t).prop('checked', !0);
+		}
 	}
 
-	function calcScrollbar() {}
+	function _resized() {
+		originalX = -1;
+		inputs.filter(':checked').trigger('change', 0);
+		if (isScrollSnap) scrollStart();
+	}
+	function _show(is_firsttime) {
+		$window.on('resized.' + n, _resized);
+		_resized();
+	}
+	function _hide() {
+		$window.off('resized.' + n);
+	}
+	$el.on({
+		'show': _show,
+		'hidden': _hide
+	});
 
 	if (isScrollSnap) {
 		illustMain.addClass('mod-scroll-snap');
-		$window.on('resized', function () {
-			scrollStart();
-			if ($el.data('is_show')) inputs.filter(':checked').trigger('change');
-		});
 		illust.on({
 			'scroll': scrollHandler,
 			'pointerdown': function pointerdown(e) {
-				if (e.originalEvent.pointerType == 'touch') {
+				if (originalX < 0 && e.originalEvent.pointerType == 'touch') {
 					scrollStart();
 				}
-			} });
-		calcScrollbar();
+			},
+			'touchstart': function touchstart() {
+				if (originalX < 0) {
+					scrollStart();
+				}
+			}
+		});
 	} else {
 		(function () {
 			var panEnd = function panEnd() {
@@ -5499,10 +6112,10 @@ _frame.infos.__ship_init = function ($el) {
 
 			var bodyTouchMove = function bodyTouchMove(e) {
 				if ((startX || startY) && e.originalEvent.targetTouches.length == 1) {
+					deltaX = e.originalEvent.targetTouches[0].clientX - startX;
 					if (isActualPanning) {
 						panHandler();
 					} else {
-						deltaX = e.originalEvent.targetTouches[0].clientX - startX;
 						deltaY = e.originalEvent.targetTouches[0].clientY - startY;
 						var absX = Math.abs(deltaX),
 						    absY = Math.abs(deltaY);
@@ -5522,12 +6135,16 @@ _frame.infos.__ship_init = function ($el) {
 
 			var bodyTouchEnd = function bodyTouchEnd(e) {
 				requestAnimationFrame(function () {
-					if (deltaX && Math.abs(deltaX) >= 30) {
+					if (deltaX && (Math.abs(deltaX) > illustWidth / 3 || _g.timeNow() - startTime < 300)) {
+						var t = undefined;
 						if (deltaX < 0 && inputCur < inputs.length - 1) {
-							inputs.eq(inputCur + sCount).prop('checked', !0).trigger('change');
+							t = inputCur + sCount;
 						} else if (deltaX > 0 && inputCur > 0) {
-							inputs.eq(inputCur - 1).prop('checked', !0).trigger('change');
+							t = inputCur - 1;
 						}
+						if (t < 0) t = 0;
+						if (t + sCount > inputs.length) t = inputs.length - sCount;
+						inputs.eq(t).prop('checked', !0).trigger('change');
 					}
 					panEnd();
 				});
@@ -5542,8 +6159,10 @@ _frame.infos.__ship_init = function ($el) {
 						originalX = parseInt(matrix[12] || matrix[4] || 0);
 						startX = e.originalEvent.targetTouches[0].clientX;
 						startY = e.originalEvent.targetTouches[0].clientY;
+						startTime = _g.timeNow();
 						inputCur = parseInt(inputs.filter(':checked').val()) - 1;
 						sCount = Math.floor(illust.width() / (s.outerWidth() * 0.95));
+						illustWidth = illust.width();
 
 						$(document).on({
 							'touchmove.infosShipIllust': bodyTouchMove,
@@ -5564,7 +6183,7 @@ _frame.infos.__fleet = function (id, el, d) {
 	return new InfosFleet(id, el, d).el;
 };
 
-var InfosFleet = (function () {
+var InfosFleet = function () {
 	function InfosFleet(id, el, d) {
 		_classCallCheck(this, InfosFleet);
 
@@ -5583,17 +6202,17 @@ var InfosFleet = (function () {
 			this.init(d);
 		} else {
 			if (id == '__NEW__') {
-				_db.fleets.insert(_tablelist.prototype._fleets_new_data(), (function (err, newDoc) {
+				_db.fleets.insert(_tablelist.prototype._fleets_new_data(), function (err, newDoc) {
 					if (err) {
 						_g.error(err);
 					} else {
 						if (_frame.infos.curContent == 'fleet::__NEW__') _frame.infos.show('[[FLEET::' + newDoc['_id'] + ']]');
 					}
-				}).bind(this));
+				}.bind(this));
 			} else {
 				_db.fleets.find({
 					'_id': id
-				}, (function (err, docs) {
+				}, function (err, docs) {
 					if (err || !docs) {
 						_g.error(err);
 					} else {
@@ -5613,7 +6232,7 @@ var InfosFleet = (function () {
 								delete _frame.infos.contentCache.fleet[id];
 							}
 					}
-				}).bind(this));
+				}.bind(this));
 			}
 		}
 
@@ -5626,13 +6245,15 @@ var InfosFleet = (function () {
 			if (!d) return !1;
 
 			this.el.on({
-				'show': (function (e, is_firstShow) {
+				'show': function (e, is_firstShow) {
+					this.is_showing = !0;
+					if (InfosFleetShipEquipment.cur) InfosFleetShipEquipment.cur.trigger('blur');
 					if (!is_firstShow) {
-						var _i8 = 0,
+						var _i12 = 0,
 						    _l2 = Lockr.get('hqLvDefault', _g.defaultHqLv);
-						while (_i8 < 4) {
-							this.fleets[_i8].summaryCalc(!0);
-							_i8++;
+						while (_i12 < 4) {
+							this.fleets[_i12].summaryCalc(!0);
+							_i12++;
 						}
 						if (!this._hqlv) this.doms['hqlvOption'].val(_l2);
 						this.doms['hqlvOptionLabel'].data('tip', this.tip_hqlv_input.printf(_l2));
@@ -5641,7 +6262,12 @@ var InfosFleet = (function () {
 					if (this.is_init) {
 						this.updateURI();
 					}
-				}).bind(this) }).on('focus.number_input_select', 'input[type="number"]:not([readonly])', function (e) {
+				}.bind(this),
+				'hidden': function hidden() {
+					this.is_showing = !1;
+					if (InfosFleetShipEquipment.cur) InfosFleetShipEquipment.cur.trigger('blur');
+				}
+			}).on('focus.number_input_select', 'input[type="number"]:not([readonly])', function (e) {
 				e.currentTarget.select();
 			});
 
@@ -5658,34 +6284,34 @@ var InfosFleet = (function () {
 			this.el.find('.loading-msg').remove();
 
 			$('<header/>').append(this.doms['name'] = $('<h3 contenteditable/>').html('点击编辑标题').on({
-				'input': (function () {
+				'input': function () {
 					this.doms['name'].trigger('namechange');
-				}).bind(this),
-				'focus': (function () {
+				}.bind(this),
+				'focus': function () {
 					if (this.doms['name'].text() == '点击编辑标题') this.doms['name'].html('');
-				}).bind(this),
-				'blur': (function () {
+				}.bind(this),
+				'blur': function () {
 					if (!this.doms['name'].text()) this.doms['name'].html('点击编辑标题');
-				}).bind(this),
-				'namechange': (function (e, content) {
+				}.bind(this),
+				'namechange': function (e, content) {
 					if (typeof content == 'undefined') {
 						content = this.doms['name'].text();
 					}
-
+					if (content != this.doms['name'].html()) this.doms['name'].html(content);
 					this._name = content;
 					return this.doms['name'];
-				}).bind(this),
-				'keydown': (function (e) {
+				}.bind(this),
+				'keydown': function (e) {
 					if (e.keyCode == 13) {
 						this.doms['name'].blur();
-						setTimeout((function () {
+						setTimeout(function () {
 							this.doms['name'].blur();
-						}).bind(this), 1);
+						}.bind(this), 1);
 					}
-					setTimeout((function () {
+					setTimeout(function () {
 						if (!this.doms['name'].text()) this._name = '';
-					}).bind(this), 100);
-				}).bind(this)
+					}.bind(this), 100);
+				}.bind(this)
 			})).append(this.doms['preview'] = $('<div class="preview"/>')).appendTo(this.el);
 
 			$('<div class="fleets"/>').append(this.doms['tabs'] = $('<div class="tabs"/>')).append(this.doms['options'] = $('<div class="options"/>').append(this.doms['hqlvOptionLabel'] = $('<label/>', {
@@ -5693,34 +6319,34 @@ var InfosFleet = (function () {
 				'html': '司令部等级',
 				'data-tip': this.tip_hqlv_input.printf(defaultHqLv)
 			}).on({
-				'mouseenter mouseleave': (function (e) {
+				'mouseenter mouseleave': function (e) {
 					if (_p.tip.is_showing && !_p.tip.timeout_fade && this.doms['hqlvOption'].is(':focus')) {
 						e.stopImmediatePropagation();
 						e.stopPropagation();
 					}
-				}).bind(this)
+				}.bind(this)
 			}).append(this.doms['hqlvOption'] = $('<input/>', {
 				'type': 'number',
 				'min': 0,
-				'max': 150,
+				'max': _g.shipMaxLv,
 				'placeholder': defaultHqLv
 			}).val(this._hqlv || defaultHqLv).on({
-				'input': (function () {
+				'input': function () {
 					this._hqlv = this.doms['hqlvOption'].val();
-				}).bind(this),
-				'focus.tipshow': (function () {
+				}.bind(this),
+				'focus.tipshow': function () {
 					this.doms['hqlvOption'].trigger('tipshow');
-				}).bind(this),
-				'blur.tiphide': (function () {
+				}.bind(this),
+				'blur.tiphide': function () {
 					this.doms['hqlvOption'].trigger('tiphide');
-				}).bind(this),
+				}.bind(this),
 				'click': function click(e) {
 					e.stopImmediatePropagation();
 					e.stopPropagation();
 				}
-			}))).append(this.doms['theme'] = $('<select class="option option-theme-value"/>').on('change', (function () {
+			}))).append(this.doms['theme'] = $('<select class="option option-theme-value"/>').on('change', function () {
 				this._theme = this.doms['theme'].val();
-			}).bind(this)).append(function () {
+			}.bind(this)).append(function () {
 				var els = $();
 				for (var j = 1; j < 11; j++) {
 					els = els.add($('<option/>', {
@@ -5729,21 +6355,21 @@ var InfosFleet = (function () {
 					}));
 				}
 				return els;
-			})).append(this.doms['themeOption'] = $('<button class="option option-theme mod-dropdown"/>').html('主题').on('click', (function () {
+			})).append(this.doms['themeOption'] = $('<button class="option option-theme mod-dropdown"/>').html('主题').on('click', function () {
 				var _this7 = this;
 
 				if (!InfosFleet.menuTheme) {
 					InfosFleet.menuThemeItems = $('<div/>');
 
-					var _loop = function _loop(_i9) {
-						$('<button class="theme-' + _i9 + '"/>').html(_i9).on('click', (function () {
-							InfosFleet.menuCur._theme = _i9;
+					var _loop = function _loop(_i13) {
+						$('<button class="theme-' + _i13 + '"/>').html(_i13).on('click', function () {
+							InfosFleet.menuCur._theme = _i13;
 							this.el.attr('data-theme', this._theme);
-						}).bind(_this7)).appendTo(InfosFleet.menuThemeItems);
+						}.bind(_this7)).appendTo(InfosFleet.menuThemeItems);
 					};
 
-					for (var _i9 = 1; _i9 < 11; _i9++) {
-						_loop(_i9);
+					for (var _i13 = 1; _i13 < 11; _i13++) {
+						_loop(_i13);
 					}
 					InfosFleet.menuTheme = new _menu({
 						'className': 'contextmenu-infos_fleet_themes',
@@ -5752,11 +6378,11 @@ var InfosFleet = (function () {
 				}
 				InfosFleet.menuCur = this;
 				InfosFleet.menuTheme.show(this.doms['themeOption']);
-			}).bind(this))).append(this.doms['exportOption'] = $('<button class="option mod-dropdown"/>').html('分享').on('click', (function () {
+			}.bind(this))).append(this.doms['exportOption'] = $('<button class="option mod-dropdown"/>').html('分享').on('click', function () {
 				if (!InfosFleet.menuExport) {
 					var menuitems = [];
-					if (!_g.isClient) {
-						menuitems.push($('<div class="item"/>').append('分享当前配置<small>可直接分享网址</small>').add(new ShareBar({
+					if (!_g.isClient || _g.isOnline) {
+						menuitems.push($('<div class="item"/>').html('分享当前配置' + (!_g.isClient ? '<small>可直接分享网址</small>' : '')).add(new ShareBar({
 							title: function title() {
 								return InfosFleet.menuCur.data.name;
 							},
@@ -5765,8 +6391,18 @@ var InfosFleet = (function () {
 							uid: 1552359,
 							modifyItem: function modifyItem(el) {
 								el.addClass('menuitem');
+							},
+							url: function url() {
+								return InfosFleet.menuCur.url;
 							}
 						}).el.addClass('item')).add($('<hr/>')));
+					}
+					if (_g.isClient) {
+						menuitems.push($('<menuitem/>', {
+							'html': '在浏览器中打开当前配置'
+						}).on('click', function () {
+							node.gui.Shell.openExternal(InfosFleet.menuCur.url);
+						}));
 					}
 					menuitems = menuitems.concat([$('<menuitem/>', {
 						'html': '导出配置代码'
@@ -5777,7 +6413,7 @@ var InfosFleet = (function () {
 					}).on('click', function () {
 						InfosFleet.menuCur.modalExportText_show();
 					})]);
-					if (_g.isClient) {
+					if (_g.isNWjs) {
 						menuitems.push($('<menuitem/>', {
 							'html': '生成图片'
 						}).on('click', function () {
@@ -5791,9 +6427,9 @@ var InfosFleet = (function () {
 				}
 				InfosFleet.menuCur = this;
 				InfosFleet.menuExport.show(this.doms['exportOption']);
-			}).bind(this))).append(this.doms['optionOptions'] = $('<button class="icon" icon="cog"/>').on('click', (function () {
+			}.bind(this))).append(this.doms['optionOptions'] = $('<button class="icon" icon="cog"/>').on('click', function () {
 				TablelistFleets.menuOptions_show(this.doms['optionOptions']);
-			}).bind(this)))).appendTo(this.el);
+			}.bind(this)))).appendTo(this.el);
 
 			this.doms['ships'] = $('<div class="ships"/>').appendTo(this.el);
 
@@ -5822,9 +6458,9 @@ var InfosFleet = (function () {
 				this.el.addClass('mod-preview');
 				this.doms['preview'].html('若要编辑配置或保存以备日后查看，请').append($('<button/>', {
 					'html': '保存配置'
-				}).on('click', (function () {
+				}).on('click', function () {
 					this.previewSave();
-				}).bind(this)));
+				}.bind(this)));
 
 				this.doms['name'].removeAttr('contenteditable');
 				this.doms['hqlvOptionLabel'].data('tip', '若要编辑配置或保存以备日后查看，<br/>请点击上方的“保存配置”按钮');
@@ -5835,13 +6471,13 @@ var InfosFleet = (function () {
 
 			this._theme = this._theme;
 
-			$body.on('update_defaultHqLv.fleet' + this.data._id, (function (e, val) {
-				if (this.el.data('is_show')) {
+			$body.on('update_defaultHqLv.fleet' + this.data._id, function (e, val) {
+				if (this.is_showing) {
 					if (!this._hqlv) this.doms['hqlvOption'].val(val);
 					this.doms['hqlvOptionLabel'].data('tip', this.tip_hqlv_input.printf(val));
 					this.doms['hqlvOption'].attr('placeholder', val);
 				}
-			}).bind(this));
+			}.bind(this));
 		}
 	}, {
 		key: 'update',
@@ -5875,7 +6511,7 @@ var InfosFleet = (function () {
 	}, {
 		key: 'previewSave',
 		value: function previewSave() {
-			_db.fleets.insert(TablelistFleets.prototype.new_data(this.data), (function (err, newDoc) {
+			_db.fleets.insert(TablelistFleets.prototype.new_data(this.data), function (err, newDoc) {
 				if (err) {
 					_g.error(err);
 				} else {
@@ -5892,12 +6528,12 @@ var InfosFleet = (function () {
 
 					_g.badgeMsg('舰队配置已保存');
 				}
-			}).bind(this));
+			}.bind(this));
 		}
 	}, {
 		key: 'updateURI',
 		value: function updateURI() {
-			if (!_g.isClient && this.data._id && _g.uriSearch()) {
+			if (!_g.isNWjs && this.data._id && _g.uriSearch()) {
 				var d = $.extend(!0, {}, this.data),
 				    _id = d._id;
 				delete d._id;
@@ -5918,6 +6554,7 @@ var InfosFleet = (function () {
 				this.fleets.forEach(function (currentValue, i) {
 					this.data.data[i] = currentValue.data;
 				}, this);
+				InfosFleet.clean(this.data.data);
 
 				this.data.time_modify = _g.timeNow();
 
@@ -5925,16 +6562,18 @@ var InfosFleet = (function () {
 
 				if (!not_save_to_file) {
 					clearTimeout(this.delay_updateDb);
-					this.delay_updateDb = setTimeout((function () {
-						_db.fleets.updateById(this.data._id, InfosFleet.compressMetaData(this.data), (function () {
+					this.delay_updateDb = setTimeout(function () {
+						_db.fleets.updateById(this.data._id, InfosFleet.compressMetaData(this.data), function () {
 							_g.log('saved');
 							InfosFleet.decompressMetaData(this.data);
-						}).bind(this));
+						}.bind(this));
 						clearTimeout(this.delay_updateDb);
 						this.delay_updateDb = null;
-					}).bind(this), 200);
+					}.bind(this), 200);
 				}
 			} else {
+				InfosFleet.clean(this.data.data);
+
 				this.updateURI();
 			}
 
@@ -6036,7 +6675,8 @@ var InfosFleet = (function () {
 			this.doms['theme'].val(this.data['theme']).attr('value', this.data['theme']);
 			_frame.infos.dom.main.attr('data-theme', this.data['theme']);
 			this.el.attr('data-theme', this.data['theme']);
-			_frame.dom.main.attr('data-theme', this.data['theme']);
+
+			_frame.dom.layout.attr('data-theme', this.data['theme']);
 			this.save();
 		}
 	}, {
@@ -6057,18 +6697,32 @@ var InfosFleet = (function () {
 				this.doms['hqlvOption'].val(Lockr.get('hqLvDefault', _g.defaultHqLv));
 			}
 			if (last != value) {
-				var _i10 = 0;
-				while (_i10 < 4) {
-					this.fleets[_i10].summaryCalc(!0);
-					_i10++;
+				var _i14 = 0;
+				while (_i14 < 4) {
+					this.fleets[_i14].summaryCalc(!0);
+					_i14++;
 				}
 				this.save();
+			}
+		}
+	}, {
+		key: 'url',
+		get: function get() {
+			if (this.data._id) {
+				var d = $.extend(!0, {}, this.data),
+				    _id = d._id;
+				delete d._id;
+				delete d.time_create;
+				delete d.time_modify;
+				delete d.rating;
+				delete d.user;
+				return 'http://fleet.diablohu.com/fleets/build/?i=' + _id + '&d=' + LZString.compressToEncodedURIComponent(JSON.stringify(d));
 			}
 		}
 	}]);
 
 	return InfosFleet;
-})();
+}();
 
 InfosFleet.modalExport = function (curval) {
 	if (!InfosFleet.elModalExport) {
@@ -6097,7 +6751,7 @@ InfosFleet.modalExportText_show = function (data) {
 
 	var text = '',
 	    fleets = InfosFleet.decompress(data.data).filter(function (value) {
-		return value.length;
+		return value && value.length;
 	}) || [];
 
 	text += data.name || '';
@@ -6105,7 +6759,7 @@ InfosFleet.modalExportText_show = function (data) {
 	fleets.forEach(function (fleet, i) {
 		text += (text ? '\n' : '') + (fleets.length > 1 ? '\n第 ' + (i + 1) + ' 舰队' : '');
 		fleet.filter(function (value) {
-			return value.length > 0 && value[0];
+			return value && value[0] && value.length > 0;
 		}).forEach(function (ship, j) {
 			text += '\n' + '(' + (i ? i + 1 + '-' : '') + (j + 1) + ')' + _g.data.ships[ship[0]]._name + (ship[1] && ship[1][0] ? ' Lv.' + ship[1][0] : '');
 			var equipments = ship[2] || [],
@@ -6176,6 +6830,23 @@ InfosFleet.modalRemove_show = function (id, is_list) {
 		'detach': !0
 	});
 };
+InfosFleet.clean = function (arr) {
+	if (!arr) return;
+	function _clean(array) {
+		if (array && array.length) {
+			array.forEach(function (v, i) {
+				if (v && v.push) {
+					_clean(v);
+				} else if (i == array.length - 1 && v === null) {
+					array.pop();
+					_clean(array);
+				}
+			});
+		}
+	}
+	_clean(arr);
+	return arr;
+};
 InfosFleet.decompress = function (code) {
 	if (code && !code.push) {
 		try {
@@ -6217,14 +6888,14 @@ InfosFleet.decompressMetaData = function (code) {
 	return code;
 };
 
-var InfosFleetSubFleet = (function () {
+var InfosFleetSubFleet = function () {
 	function InfosFleetSubFleet(infosFleet, d, index) {
 		_classCallCheck(this, InfosFleetSubFleet);
 
 		d = d || [];
 		this.data = d;
 
-		this.el = $('<dl class="fleetinfos-ships"/>');
+		this.el = $('<dl class="fleetships"/>');
 
 		this.ships = [];
 
@@ -6242,9 +6913,9 @@ var InfosFleetSubFleet = (function () {
 
 		this.updateEl();
 
-		$body.on('update_defaultHqLv.fleet' + infosFleet.data._id + '-' + (index + 1), (function () {
-			if (this.infosFleet.el.data('is_show')) this.summaryCalc(!0);
-		}).bind(this));
+		$body.on('update_defaultHqLv.fleet' + infosFleet.data._id + '-' + (index + 1), function () {
+			if (this.infosFleet.is_showing) this.summaryCalc(!0);
+		}.bind(this));
 	}
 
 	_createClass(InfosFleetSubFleet, [{
@@ -6265,7 +6936,7 @@ var InfosFleetSubFleet = (function () {
 		value: function summaryCalc(is_onlyHqLvChange) {
 			if (this.summaryCalculating) return !1;
 
-			this.summaryCalculating = setTimeout((function () {
+			this.summaryCalculating = setTimeout(function () {
 				var _this8 = this;
 
 				if (!is_onlyHqLvChange) {
@@ -6316,7 +6987,7 @@ var InfosFleetSubFleet = (function () {
 				}
 
 				this.summaryCalculating = null;
-			}).bind(this), 10);
+			}.bind(this), 10);
 		}
 	}, {
 		key: 'summaryCalcLos',
@@ -6346,8 +7017,8 @@ var InfosFleetSubFleet = (function () {
 					}) || [];
 					equipments_by_slot.forEach(function (equipment) {
 						if (equipment) {
-							for (var _i11 in x) {
-								if (Formula.equipmentType[_i11] && Formula.equipmentType[_i11].push && Formula.equipmentType[_i11].indexOf(equipment.type) > -1) x[_i11] += equipment.stat.los;
+							for (var _i15 in x) {
+								if (Formula.equipmentType[_i15] && Formula.equipmentType[_i15].push && Formula.equipmentType[_i15].indexOf(equipment.type) > -1) x[_i15] += equipment.stat.los;
 							}
 						}
 					});
@@ -6380,9 +7051,9 @@ var InfosFleetSubFleet = (function () {
 	}]);
 
 	return InfosFleetSubFleet;
-})();
+}();
 
-var InfosFleetShip = (function () {
+var InfosFleetShip = function () {
 	function InfosFleetShip(infosFleet, infosFleetSubFleet, index, d) {
 		_classCallCheck(this, InfosFleetShip);
 
@@ -6395,12 +7066,12 @@ var InfosFleetShip = (function () {
 		this.equipments = [];
 		this.index = index;
 
-		this.el = $('<dd class="noship"/>').append($('<dt/>').append(this.elAvatar = $('<s touch-action="none"/>')).append(this.elInfos = $('<div/>').html('<span>' + (this.infosFleet.data._id ? '选择舰娘' : '无舰娘') + '...</span>').append(this.elInfosTitle = $('<div class="title"/>')).append($('<div class="info"/>').append($('<label/>').html('Lv.').append(this.elInputLevel = $('<input/>', {
+		this.el = $('<dd class="ship"/>').append($('<dt/>').append(this.elAvatar = $('<s touch-action="none"/>')).append(this.elInfos = $('<div/>').html('<span>' + (this.infosFleet.data._id ? '选择舰娘' : '无舰娘') + '...</span>').append(this.elInfosTitle = $('<div class="title"/>')).append($('<div class="info"/>').append($('<label/>').html('Lv.').append(this.elInputLevel = $('<input/>', {
 			'type': 'number',
 			'min': 0,
-			'max': 150
+			'max': _g.shipMaxLv
 		}).on({
-			'change': (function (e) {
+			'change': function (e) {
 				var value = this.elInputLevel.val();
 
 				if ((typeof value == 'undefined' || value === '') && this.data[1][0]) this.shipLv = null;
@@ -6409,26 +7080,26 @@ var InfosFleetShip = (function () {
 				if (value < 0) {
 					value = 0;
 					this.elInputLevel.val(0);
-				} else if (value > 150) {
-					value = 150;
-					this.elInputLevel.val(150);
+				} else if (value > _g.shipMaxLv) {
+					value = _g.shipMaxLv;
+					this.elInputLevel.val(_g.shipMaxLv);
 				}
 				if (!isNaN(value) && this.data[1][0] != value) this.shipLv = value;
-			}).bind(this),
-			'input': (function () {
+			}.bind(this),
+			'input': function () {
 				this.elInputLevel.trigger('change');
-			}).bind(this)
-		}))).append(this.elInfosInfo = $('<span/>'))))).append($('<div class="equipments"/>').append((function () {
+			}.bind(this)
+		}))).append(this.elInfosInfo = $('<span/>'))))).append($('<div class="equipments"/>').append(function () {
 			var els = $();
-			for (var _i12 = 0; _i12 < 4; _i12++) {
-				this.equipments[_i12] = new InfosFleetShipEquipment(this, _i12);
-				els = els.add(this.equipments[_i12].el);
+			for (var _i16 = 0; _i16 < 4; _i16++) {
+				this.equipments[_i16] = new InfosFleetShipEquipment(this, _i16);
+				els = els.add(this.equipments[_i16].el);
 			}
 
 			return els;
-		}).bind(this))).append($('<div class="attributes"/>').append(this.elAttrShelling = $('<span class="shelling"/>')).append(this.elAttrTorpedo = $('<span class="torpedo"/>')).append(this.elAttrHitSum = $('<span class="hitsum"/>')).append(this.elAttrHp = $('<span class="hp"/>')).append(this.elAttrArmor = $('<span class="armor"/>')).append(this.elAttrEvasion = $('<span class="evasion"/>')).append(this.elAttrNightBattle = $('<span class="nightbattle" data-text="夜战"/>')).append(_huCss.csscheck_full('mask-image') ? null : $('<div class="bg"/>'))).append($('<div class="options"/>').append(this.elBtnOptions = $('<button class="options"/>').on('click', (function (e) {
+		}.bind(this))).append($('<div class="attributes"/>').append(this.elAttrShelling = $('<span class="shelling"/>')).append(this.elAttrTorpedo = $('<span class="torpedo"/>')).append(this.elAttrHitSum = $('<span class="hitsum"/>')).append(this.elAttrHp = $('<span class="hp"/>')).append(this.elAttrArmor = $('<span class="armor"/>')).append(this.elAttrEvasion = $('<span class="evasion"/>')).append(this.elAttrNightBattle = $('<span class="nightbattle" data-text="夜战"/>')).append(_huCss.csscheck_full('mask-image') ? null : $('<div class="bg"/>'))).append($('<div class="options"/>').append(this.elBtnOptions = $('<button class="options"/>').on('click', function (e) {
 			this.showMenu();
-		}).bind(this))));
+		}.bind(this))));
 
 		this.after = $('<s/>');
 
@@ -6436,22 +7107,22 @@ var InfosFleetShip = (function () {
 
 		if (this.infosFleet.data._id) {
 			this.el.on({
-				'click': (function () {
+				'click': function () {
 					if (!this.data[0]) this.selectShipStart();
-				}).bind(this),
+				}.bind(this),
 
-				'pointerenter': (function () {
+				'pointerenter': function () {
 					InfosFleetShip.dragEnter(this);
-				}).bind(this)
+				}.bind(this)
 			});
 			this.elAvatar.on({
-				'pointerdown': (function (e) {
+				'pointerdown': function (e) {
 					e.preventDefault();
 					if (this.data[0]) {
 						document.activeElement.blur();
 						InfosFleetShip.dragStart(this);
 					}
-				}).bind(this)
+				}.bind(this)
 			});
 		} else {
 			this.elInputLevel.prop('readonly', !0);
@@ -6473,12 +7144,12 @@ var InfosFleetShip = (function () {
 			_g.log('开始选择舰娘');
 
 			_frame.app_main.load_page('ships', {
-				callback_modeSelection_select: (function (id) {
+				callback_modeSelection_select: function (id) {
 					history.back();
 					this.shipId = id;
 					this.shipLv = null;
 					if (this.infosFleet) _frame.infos.dom.main.attr('data-theme', this.infosFleet.data['theme']);
-				}).bind(this)
+				}.bind(this)
 			});
 		}
 	}, {
@@ -6540,10 +7211,10 @@ var InfosFleetShip = (function () {
 
 			if (this.data[1][0]) this.shipLv = this.data[1][0];
 
-			for (var _i13 = 0; _i13 < 4; _i13++) {
-				this.equipments[_i13].id = this.data[2][_i13];
-				this.equipments[_i13].star = this.data[3][_i13];
-				this.equipments[_i13].rank = this.data[4][_i13];
+			for (var _i17 = 0; _i17 < 4; _i17++) {
+				this.equipments[_i17].id = this.data[2][_i17];
+				this.equipments[_i17].star = this.data[3][_i17];
+				this.equipments[_i17].rank = this.data[4][_i17];
 			}
 
 			this.updateAttrs();
@@ -6655,14 +7326,14 @@ var InfosFleetShip = (function () {
 			if (this._updating) return !1;
 
 			if (!this._updateTimeout) {
-				this._updateTimeout = setTimeout((function () {
+				this._updateTimeout = setTimeout(function () {
 					this.updateAttrs();
 					if (this.infosFleetSubFleet) {
 						this.infosFleetSubFleet.summaryCalc();
 						this.infosFleetSubFleet.save();
 					}
 					this._updateTimeout = null;
-				}).bind(this), 50);
+				}.bind(this), 50);
 			}
 		}
 	}, {
@@ -6685,22 +7356,22 @@ var InfosFleetShip = (function () {
 				stype = stype.replace(speed, '');
 
 				this.el.attr('data-shipId', value);
-				this.el.removeClass('noship');
+
 				this.elAvatar.html('<img src="' + ship.getPic(10) + '"/>');
 				this.elInfosTitle.html('<h4 data-content="' + ship['name'][_g.lang] + '">' + ship['name'][_g.lang] + '</h4>' + (suffix ? '<h5 data-content="' + suffix + '">' + suffix + '</h5>' : ''));
 				this.elInfosInfo.html(speed + ' ' + stype);
 
-				for (var _i14 = 0; _i14 < 4; _i14++) {
-					this.equipments[_i14].carry = ship.slot[_i14];
+				for (var _i18 = 0; _i18 < 4; _i18++) {
+					this.equipments[_i18].carry = ship.slot[_i18];
 					if (!this._updating) {
-						this.equipments[_i14].id = null;
-						this.equipments[_i14].star = null;
-						this.equipments[_i14].rank = null;
+						this.equipments[_i18].id = null;
+						this.equipments[_i18].star = null;
+						this.equipments[_i18].rank = null;
 					}
 				}
 			} else {
 				this.el.removeAttr('data-shipId');
-				this.el.addClass('noship');
+
 				this.elAvatar.html('');
 				this.data[2] = [];
 				this.data[3] = [];
@@ -6727,7 +7398,7 @@ var InfosFleetShip = (function () {
 	}]);
 
 	return InfosFleetShip;
-})();
+}();
 
 InfosFleetShip.dragStart = function (infosFleetShip) {
 	if (InfosFleetShip.dragging || !infosFleetShip) return !1;
@@ -6754,7 +7425,7 @@ InfosFleetShip.dragEnter = function (infosFleetShip_enter) {
 	InfosFleetShip.dragging.swap(infosFleetShip_enter);
 };
 
-var InfosFleetShipEquipment = (function () {
+var InfosFleetShipEquipment = function () {
 	function InfosFleetShipEquipment(infosFleetShip, index) {
 		_classCallCheck(this, InfosFleetShipEquipment);
 
@@ -6763,66 +7434,68 @@ var InfosFleetShipEquipment = (function () {
 
 		if (this.el) return this.el;
 
-		this.el = $('<div class="equipment" touch-action="none" tabindex="0"/>').on({
-			'focus': (function () {
-				this.el.addClass('is-hover');
-			}).bind(this),
-			'blur': (function () {
+		this.el = $('<div class="equipment" tabindex="0"/>').on({
+			'focus': function () {
+				InfosFleetShipEquipment.cur = this.el.addClass('is-hover');
+			}.bind(this),
+			'blur': function () {
 				this.el.removeClass('is-hover');
-			}).bind(this),
-			'pointerenter': (function (e) {
+				InfosFleetShipEquipment.cur = null;
+			}.bind(this),
+			'pointerenter': function (e) {
 				if (e.originalEvent.pointerType != 'touch') {
-					this.el.addClass('is-hover');
+					InfosFleetShipEquipment.cur = this.el.addClass('is-hover');
 				}
-			}).bind(this),
-			'pointerleave': (function (e) {
+			}.bind(this),
+			'pointerleave': function (e) {
 				if (e.originalEvent.pointerType != 'touch') {
 					this.el.removeClass('is-hover').blur();
+					InfosFleetShipEquipment.cur = null;
 				}
-			}).bind(this)
-		}).append(this.elCarry = $('<div class="equipment-layer equipment-add"/>').on('click', (function () {
+			}.bind(this)
+		}).append(this.elCarry = $('<div class="equipment-layer equipment-add"/>').on('click', function () {
 			this.selectEquipmentStart();
-		}).bind(this))).append($('<div class="equipment-layer equipment-infos"/>').append(this.elName = $('<span class="equipment-name"/>')).append(this.elStar = $('<span class="equipment-star"/>').html(0)).append(this.elRank = $('<span class="equipment-rank"/>')).append((function () {
+		}.bind(this))).append($('<div class="equipment-layer equipment-infos"/>').append(this.elName = $('<span class="equipment-name"/>')).append(this.elStar = $('<span class="equipment-star"/>').html(0)).append(this.elRank = $('<span class="equipment-rank"/>')).append(function () {
 			var el = $('<span class="equipment-carry"/>').html(0);
 			this.elCarry = this.elCarry.add(el);
 			return el;
-		}).bind(this))).append($('<div class="equipment-layer equipment-options"/>').append(this.elInputStar = $('<input/>', {
+		}.bind(this))).append($('<div class="equipment-layer equipment-options"/>').append(this.elInputStar = $('<input/>', {
 			'class': 'equipment-starinput',
 			'type': 'number',
 			'placeholder': 0
 		}).on({
-			'input': (function () {
+			'input': function () {
 				var value = this.elInputStar.val();
 
 				if ((typeof value == 'undefined' || value === '') && this.star) this.star = null;
 
 				value = parseInt(value);
 				if (!isNaN(value) && this.star != value) this.star = value;
-			}).bind(this),
-			'focus': (function () {
+			}.bind(this),
+			'focus': function () {
 				this.el.addClass('is-hover');
 				console.log('focus');
-			}).bind(this),
-			'blur': (function () {
-				setTimeout((function () {
+			}.bind(this),
+			'blur': function () {
+				setTimeout(function () {
 					if (!this.el.is(':focus')) this.el.removeClass('is-hover');
-				}).bind(this), 10);
-			}).bind(this)
+				}.bind(this), 10);
+			}.bind(this)
 		})).append(this.elSelectRank = $('<div/>', {
 			'class': 'equipment-rankselect',
 			'html': '<span>无</span>'
-		}).on('click', (function () {
+		}).on('click', function () {
 			if (!InfosFleet.menuRankSelect) {
 				InfosFleet.menuRankSelectItems = $('<div/>');
 
-				var _loop2 = function _loop2(_i15) {
-					$('<button class="rank-' + _i15 + '"/>').html(!_i15 ? '无' : '').on('click', function () {
-						InfosFleet.menuRankSelectCur.rank = _i15;
+				var _loop2 = function _loop2(_i19) {
+					$('<button class="rank-' + _i19 + '"/>').html(!_i19 ? '无' : '').on('click', function () {
+						InfosFleet.menuRankSelectCur.rank = _i19;
 					}).appendTo(InfosFleet.menuRankSelectItems);
 				};
 
-				for (var _i15 = 0; _i15 < 8; _i15++) {
-					_loop2(_i15);
+				for (var _i19 = 0; _i19 < 8; _i19++) {
+					_loop2(_i19);
 				}
 				InfosFleet.menuRankSelect = new _menu({
 					'className': 'contextmenu-infos_fleet_rank_select',
@@ -6831,13 +7504,13 @@ var InfosFleetShipEquipment = (function () {
 			}
 			InfosFleet.menuRankSelectCur = this;
 			InfosFleet.menuRankSelect.show(this.elSelectRank);
-		}).bind(this))).append(this.elButtonInspect = $('<span class="button inspect" icon="search"/>').on('click', (function () {
+		}.bind(this))).append(this.elButtonInspect = $('<span class="button inspect" icon="search"/>').on('click', function () {
 			if (this.id) _frame.infos.show('[[EQUIPMENT::' + this.id + ']]');
-		}).bind(this))).append($('<span class="button change" icon="loop"/>').on('click', (function () {
+		}.bind(this))).append($('<span class="button change" icon="loop"/>').on('click', function () {
 			this.selectEquipmentStart();
-		}).bind(this))).append($('<span class="button remove"/>').html('×').on('click', (function () {
+		}.bind(this))).append($('<span class="button remove"/>').on('click', function () {
 			this.id = null;
-		}).bind(this))));
+		}.bind(this))));
 	}
 
 	_createClass(InfosFleetShipEquipment, [{
@@ -6851,20 +7524,19 @@ var InfosFleetShipEquipment = (function () {
 			_g.log('开始选择装备');
 
 			_frame.app_main.load_page('equipments', {
-				callback_modeSelection_select: (function (id) {
+				callback_modeSelection_select: function (id) {
 					history.back();
 					this.id = id;
 					this.star = 0;
 					this.rank = Lockr.get('fleetlist-option-aircraftdefaultmax') && id && _g.data.items[id].rankupgradable && $.inArray(_g.data.items[id].type, Formula.equipmentType.Aircrafts) > -1 ? 7 : 0;
-					TablelistEquipments.types = [];
-					TablelistEquipments.shipId = null;
+
 					if (this.infosFleetShip.infosFleet) _frame.infos.dom.main.attr('data-theme', this.infosFleetShip.infosFleet.data['theme']);
-				}).bind(this),
-				callback_modeSelection_enter: (function () {
+				}.bind(this),
+				callback_modeSelection_enter: function () {
 					TablelistEquipments.types = _g.data.ships[this.infosFleetShip.shipId].getEquipmentTypes();
 					TablelistEquipments.shipId = this.infosFleetShip.shipId;
 					_frame.app_main.page['equipments'].object.tablelistObj.apply_types();
-				}).bind(this)
+				}.bind(this)
 			});
 		}
 	}, {
@@ -6898,18 +7570,19 @@ var InfosFleetShipEquipment = (function () {
 				this.improvable = _g.data.items[value].improvable || !1;
 				this.el.attr({
 					'data-equipmentid': value,
-					'data-tip': '[[EQUIPMENT::' + value + ']]'
+					'data-tip': '[[EQUIPMENT::' + value + ']]',
+					'touch-action': 'none'
 				}).css('background-image', 'url(' + _g.data.items[value]._icon + ')');
 				this.elName.html(_g.data.items[value]._name);
 
 				if ($.inArray(_g.data.items[value].type, Formula.equipmentType.Aircrafts) > -1) {
 					this.el.addClass('is-aircraft');
 					if (_g.data.items[value].rankupgradable) this.el.addClass('is-rankupgradable');
-				} else this.el.removeClass('is-aircraft');
+				} else this.el.removeClass('is-aircraft is-rankupgradable');
 			} else {
 				this.infosFleetShip.data[2][this.index] = null;
 				this.improvable = !1;
-				this.el.removeAttr('data-equipmentId').removeAttr('data-tip').removeAttr('data-star').removeAttr('data-rank').css('background-image', '').removeClass('is-aircraft is-rankupgradable');
+				this.el.removeAttr('data-equipmentId').removeAttr('data-tip').removeAttr('data-star').removeAttr('data-rank').removeAttr('touch-action').css('background-image', '').removeClass('is-aircraft is-rankupgradable');
 				this.elName.html('');
 			}
 
@@ -7002,7 +7675,7 @@ var InfosFleetShipEquipment = (function () {
 	}]);
 
 	return InfosFleetShipEquipment;
-})();
+}();
 
 _frame.app_main.is_mode_selection = function () {
 	return $html.hasClass('mode-selection') || _frame.dom.layout.hasClass('mode-selection');
@@ -7049,11 +7722,9 @@ if (typeof _p.tip != 'undefined') {
 			}
 		}
 
-		var item_icon = '/!/assets/images/itemicon/' + d.getIconId() + '.png',
-		    item_name = d.getName(),
-		    html = '<h3 class="itemstat">' + '<s style="background-image: url(' + item_icon + ')"></s>' + '<strong data-content="' + item_name + '">' + item_name + '</strong>' + '<small>' + _g.data.item_types[d['type']]['name']['zh_cn'] + '</small>' + '</h3>' + _stat('fire', '火力') + _stat('torpedo', '雷装') + _stat('aa', '对空') + _stat('asw', '对潜') + _stat('bomb', '爆装') + _stat('hit', '命中') + _stat('armor', '装甲') + _stat('evasion', '回避') + _stat('los', '索敌') + _stat('range', '射程');
+		var item_name = d.getName();
 
-		return html;
+		return '<h3 class="itemstat">' + '<s class="equiptypeicon mod-' + d.getIconId() + '"></s>' + '<strong data-content="' + item_name + '">' + item_name + '</strong>' + '<small>' + _g.data.item_types[d['type']]['name']['zh_cn'] + '</small>' + '</h3>' + _stat('fire', '火力') + _stat('torpedo', '雷装') + _stat('aa', '对空') + _stat('asw', '对潜') + _stat('bomb', '爆装') + _stat('hit', '命中') + _stat('armor', '装甲') + _stat('evasion', '回避') + _stat('los', '索敌') + _stat('range', '射程');
 	};
 }
 
@@ -7097,7 +7768,7 @@ _p.el.tablelist = {
 	}
 };
 
-var Tablelist = (function () {
+var Tablelist = function () {
 	function Tablelist(container, options) {
 		_classCallCheck(this, Tablelist);
 
@@ -7112,6 +7783,8 @@ var Tablelist = (function () {
 		this.flexgrid_empty_count = options.flexgrid_empty_count || 8;
 		this.sort_data_by_stat = options.sort_data_by_stat || {};
 		this.sort_default_order_by_stat = options.sort_default_order_by_stat || {};
+
+		container.on('mouseenter.hovercolumn', '.tablelist-body dd', this.hovercolumn_delegate.bind(this)).on('mouseleave.hovercolumn', '.tablelist-body dd', this.hovercolumn_delegate_leave.bind(this));
 	}
 
 	_createClass(Tablelist, [{
@@ -7219,16 +7892,16 @@ var Tablelist = (function () {
 				var tbody = this.dom.tbody;
 				if (!tbody || !tbody.length) tbody = this.dom.table.children('.tablelist-body');
 
-				rows = tbody.children('p.row:visible:not([data-donotcompare])');
+				rows = tbody.children('dl:visible:not([data-donotcompare])');
 			}
 			nth = nth || 1;
 
 			this._tmp_values = [];
 			this._tmp_value_map_cell = {};
 
-			rows.children('span:nth-of-type(' + nth + ')').each((function (index, element) {
+			rows.children('dd:nth-of-type(' + nth + ')').each(function (index, element) {
 				var cell = $(element),
-				    val = cell.attr('data-value');
+				    val = cell.attr('value');
 
 				val = parseFloat(val);
 
@@ -7237,7 +7910,7 @@ var Tablelist = (function () {
 				if (!this._tmp_value_map_cell[val]) this._tmp_value_map_cell[val] = $();
 
 				this._tmp_value_map_cell[val] = this._tmp_value_map_cell[val].add(cell);
-			}).bind(this));
+			}.bind(this));
 
 			this._tmp_values.sort(function (a, b) {
 				if (is_ascending) return a - b;else return b - a;
@@ -7260,14 +7933,14 @@ var Tablelist = (function () {
 
 			if (!tbody || !tbody.length) tbody = this.dom.table.children('.tablelist-body');
 
-			var rows = tbody.children('p.row:visible:not([data-donotcompare])');
+			var rows = tbody.children('dl:visible:not([data-donotcompare])');
 
-			rows.children('span[data-value]').removeClass('sort-first sort-second');
+			rows.children('dd[value]').removeClass('sort-first sort-second');
 
-			rows.eq(0).children('span[data-value]').each((function (index, element) {
+			rows.eq(0).children('dd[value]').each(function (index, element) {
 				var is_ascending = !1,
 				    $this = $(element),
-				    stat = $this.data('stat'),
+				    stat = $this.attr('stat'),
 				    noMark = stat.match(/\b(speed|range|extra_illust)\b/);
 
 				if (typeof this.sort_default_order_by_stat[stat] == 'undefined') {
@@ -7286,7 +7959,7 @@ var Tablelist = (function () {
 				}
 
 				if (cacheSortData) this.sort_data_by_stat[stat] = sort;else delete this.sort_data_by_stat[stat];
-			}).bind(this));
+			}.bind(this));
 
 			return rows;
 		}
@@ -7295,7 +7968,7 @@ var Tablelist = (function () {
 		value: function sort_table_from_theadcell(cell) {
 			if (!cell) return;
 
-			var stat = cell.data('stat'),
+			var stat = cell.attr('stat'),
 			    sortData = this.sort_data_by_stat[stat];
 
 			console.log(stat, sortData);
@@ -7344,12 +8017,12 @@ var Tablelist = (function () {
 			    arr = [];
 			this.sortedRow.each(function (index, element) {
 				var $this = $(element),
-				    trIndex = parseInt($this.data('trindex'));
+				    trIndex = parseInt($this.attr('trindex'));
 				parent = parent || $this.parent();
 				arr.push({
 					'index': trIndex,
 					'el': $this,
-					'prev': parent.children('[data-trindex="' + (trIndex - 1) + '"]')
+					'prev': parent.children('[trindex="' + (trIndex - 1) + '"]')
 				});
 			});
 
@@ -7370,10 +8043,34 @@ var Tablelist = (function () {
 			delete this.lastSortedHeader;
 			return !0;
 		}
+	}, {
+		key: 'hovercolumn_delegate',
+		value: function hovercolumn_delegate(e) {
+			if (!$body_preventMouseover && e && e.originalEvent.path && this.dom.tbody) {
+				var index = e.currentTarget.getAttribute('data-index');
+				if (!index) {
+					var _el = $(e.currentTarget);
+					index = _el.index();
+					_el.attr('data-index', index);
+				} else {
+					index = parseInt(index);
+				}
+
+				this.dom.tbody.find('dl:visible dd:nth-child(' + (index + 1) + ')').addClass('is-hover');
+			}
+		}
+	}, {
+		key: 'hovercolumn_delegate_leave',
+		value: function hovercolumn_delegate_leave(e) {
+			if (!$body_preventMouseover && e && e.originalEvent.path && this.dom.tbody) {
+				this.dom.tbody.find('dd.is-hover').removeClass('is-hover');
+				_p.el.tablelist.hovercolumn_mouseleave_delay = null;
+			}
+		}
 	}]);
 
 	return Tablelist;
-})();
+}();
 
 Tablelist.index = 0;
 Tablelist.genId = function (text) {
@@ -7391,7 +8088,7 @@ Tablelist.genId = function (text) {
 	return 'tablelist' + hash;
 };
 
-var TablelistEntities = (function (_Tablelist) {
+var TablelistEntities = function (_Tablelist) {
 	_inherits(TablelistEntities, _Tablelist);
 
 	function TablelistEntities(container, options) {
@@ -7419,9 +8116,9 @@ var TablelistEntities = (function (_Tablelist) {
 	}]);
 
 	return TablelistEntities;
-})(Tablelist);
+}(Tablelist);
 
-var TablelistShips = (function (_Tablelist2) {
+var TablelistShips = function (_Tablelist2) {
 	_inherits(TablelistShips, _Tablelist2);
 
 	function TablelistShips(container, options) {
@@ -7431,7 +8128,10 @@ var TablelistShips = (function (_Tablelist2) {
 
 		_this10.columns = ['  ', ['火力', 'fire'], ['雷装', 'torpedo'], ['夜战', 'nightpower'], ['对空', 'aa'], ['对潜', 'asw'], ['耐久', 'hp'], ['装甲', 'armor'], ['回避', 'evasion'], ['搭载', 'carry'], ['航速', 'speed'], ['射程', 'range'], ['索敌', 'los'], ['运', 'luck'], ['油耗', 'consum_fuel'], ['弹耗', 'consum_ammo'], ['多立绘', 'extra_illust']];
 		_this10.header_checkbox = [];
-		_this10.checkbox = [];
+		_this10.mode_selection_filters = $();
+
+		_this10.rows = $();
+		_this10.rowsById = {};
 
 		_frame.app_main.loading.push('tablelist_' + _this10._index);
 		_frame.app_main.is_loaded = !1;
@@ -7444,7 +8144,7 @@ var TablelistShips = (function (_Tablelist2) {
 	_createClass(TablelistShips, [{
 		key: 'compare_btn_show',
 		value: function compare_btn_show(is_checked) {
-			if (!is_checked && this.compare_checkbox.filter(':checked').length || is_checked) {
+			if (!is_checked && this.rows.filter('[compare="true"]').length || is_checked) {
 				this.dom.msg_container.attr('data-msgs', 'comparestart');
 			} else {
 				this.dom.msg_container.removeAttr('data-msgs');
@@ -7481,7 +8181,9 @@ var TablelistShips = (function (_Tablelist2) {
 	}, {
 		key: 'compare_end',
 		value: function compare_end() {
-			this.compare_checkbox.filter(':checked').prop('checked', !1).trigger('change');
+			this.rows.filter('[compare="true"]').each(function (i, el) {
+				this.check(el, !1);
+			}.bind(this));
 			this.dom.msg_container.removeAttr('data-msgs');
 			this.compare_off();
 		}
@@ -7510,17 +8212,17 @@ var TablelistShips = (function (_Tablelist2) {
 						TablelistShips.contextmenu._curel.trigger('click', [!0]);
 					}
 				}), $('<menuitem/>').html('将该舰娘加入对比').on({
-					'click': (function (e) {
-						this.checkbox[TablelistShips.contextmenu._curid].prop('checked', !this.checkbox[TablelistShips.contextmenu._curid].prop('checked')).trigger('change');
-					}).bind(this),
-					'show': (function (e) {
+					'click': function (e) {
+						this.check(this.rowsById[TablelistShips.contextmenu._curid]);
+					}.bind(this),
+					'show': function (e) {
 						if (!TablelistShips.contextmenu._curid) return !1;
 
 						if (_g.data.ship_types[_g['data']['ships'][TablelistShips.contextmenu._curid]['type']]['donotcompare']) $(e.target).hide();else $(e.target).show();
 
-						if (this.checkbox[TablelistShips.contextmenu._curid].prop('checked')) $(e.target).html('取消对比');else $(e.target).html('将该舰娘加入对比');
-					}).bind(this)
-				}), $('<div/>').on('show', (function (e) {
+						if (this.rowsById[TablelistShips.contextmenu._curid].attr('compare') === 'true') $(e.target).html('取消对比');else $(e.target).html('将该舰娘加入对比');
+					}.bind(this)
+				}), $('<div/>').on('show', function (e) {
 					var $div = $(e.target).empty();
 					if (TablelistShips.contextmenu._curid) {
 						var series = _g['data']['ships'][TablelistShips.contextmenu._curid].getSeriesData() || [];
@@ -7528,7 +8230,7 @@ var TablelistShips = (function (_Tablelist2) {
 							if (!i) $div.append($('<hr/>'));
 							var checkbox = null;
 							try {
-								checkbox = this.checkbox[currentValue['id']];
+								checkbox = this.rowsById[currentValue['id']];
 							} catch (e) {}
 							$div.append($('<div class="item"/>').html('<span>' + _g['data']['ships'][currentValue['id']].getName(!0) + '</span>').append($('<div class="group"/>').append(function () {
 								var els = $();
@@ -7542,16 +8244,16 @@ var TablelistShips = (function (_Tablelist2) {
 								}
 
 								return els;
-							}).append($('<menuitem data-infos="[[SHIP::' + currentValue['id'] + ']]"/>').html('查看资料')).append($('<menuitem/>').html(checkbox && checkbox.prop('checked') ? '取消对比' : '加入对比').on({
-								'click': (function (e) {
+							}).append($('<menuitem data-infos="[[SHIP::' + currentValue['id'] + ']]"/>').html('查看资料')).append($('<menuitem/>').html(checkbox && checkbox.attr('compare') === 'true' ? '取消对比' : '加入对比').on({
+								'click': function (e) {
 									if (checkbox) {
-										this.checkbox[currentValue['id']].prop('checked', !checkbox.prop('checked')).trigger('change');
+										this.check(checkbox);
 									}
-								}).bind(this)
+								}.bind(this)
 							}))));
 						}, this);
 					}
-				}).bind(this))]
+				}.bind(this))]
 			});
 
 			TablelistShips.contextmenu._curid = shipId || $el.data('shipid');
@@ -7566,61 +8268,76 @@ var TablelistShips = (function (_Tablelist2) {
 			this.dom.filters = this.dom.filter_container.children('.filters');
 			this.dom.exit_compare = this.dom.filter_container.children('.exit_compare');
 
-			this.dom.exit_compare.children('button[icon="arrow-set2-left"]').on('click', (function () {
+			this.dom.exit_compare.children('button[icon="arrow-set2-left"]').on('click', function () {
 				this.compare_end();
-			}).bind(this));
+			}.bind(this));
 
-			this.dom.exit_compare.children('button[icon="checkbox-checked"]').on('click', (function () {
+			this.dom.exit_compare.children('button[icon="checkbox-checked"]').on('click', function () {
 				this.compare_continue();
-			}).bind(this));
+			}.bind(this));
 
-			this.dom.btn_compare_sort = this.dom.exit_compare.children('button[icon="sort-amount-desc"]').on('click', (function () {
+			this.dom.btn_compare_sort = this.dom.exit_compare.children('button[icon="sort-amount-desc"]').on('click', function () {
 				if (!this.dom.btn_compare_sort.hasClass('disabled')) this.sort_table_restore();
-			}).bind(this));
+			}.bind(this));
 
-			this.dom.btn_hide_premodel = this.dom.filters.find('[name="hide-premodel"]').prop('checked', _config.get('shiplist-filter-hide-premodel') === 'false' ? null : !0).on('change', (function (e) {
+			this.dom.search = $('<p class="search"/>').prependTo(this.dom.filters).append(this.dom.searchInput = $('<input type="search" placeholder="搜索舰娘..."/>').on({
+				'input': function (e) {
+					clearTimeout(this.searchDelay);
+					this.searchDelay = setTimeout(function () {
+						this.search(e.target.value);
+					}.bind(this), 100);
+				}.bind(this),
+				'focus': function () {
+					this.dom.search.addClass('on');
+				}.bind(this),
+				'blur': function () {
+					if (!this.dom.container.hasClass('mod-search')) this.dom.search.removeClass('on');
+				}.bind(this)
+			}));
+
+			this.dom.btn_hide_premodel = this.dom.filters.find('[name="hide-premodel"]').prop('checked', _config.get('shiplist-filter-hide-premodel') === 'false' ? null : !0).on('change', function (e) {
 				_config.set('shiplist-filter-hide-premodel', this.dom.btn_hide_premodel.prop('checked'));
 				this.dom.filter_container.attr('filter-hide-premodel', this.dom.btn_hide_premodel.prop('checked'));
 				this.thead_redraw();
-			}).bind(this));
+			}.bind(this));
 
-			this.dom.filters.find('[name="viewtype"]').each((function (index, $el) {
+			this.dom.filters.find('[name="viewtype"]').each(function (index, $el) {
 				$el = $($el);
 				var viewtype = _config.get('shiplist-viewtype') || 'card';
 				if ($el.val() == viewtype) $el.prop('checked', !0);
-				$el.on('change', (function (e) {
+				$el.on('change', function (e) {
 					if ($el.is(':checked')) {
 						_config.set('shiplist-viewtype', $el.val());
 						this.dom.filter_container.attr('viewtype', $el.val());
 						this.thead_redraw();
 					}
-				}).bind(this));
-			}).bind(this));
+				}.bind(this));
+			}.bind(this));
 			this.dom.filters.find('input').trigger('change');
 
 			this.dom.table = this.dom.container.children('.tablelist-container');
-			this.dom.thead = this.dom.table.children('.tablelist-header');
-			this.dom.thead.children('span').on('click', (function (e) {
+			this.dom.thead = this.dom.table.children('.tablelist-header').on('click', '[stat]', function (e) {
 				this.sort_table_from_theadcell($(e.currentTarget));
-			}).bind(this));
-			this.dom.tbody = this.dom.table.children('.tablelist-body').on('contextmenu.contextmenu_ship', '.row[data-shipid]', (function (e) {
+			}.bind(this));
+			this.dom.tbody = this.dom.table.children('.tablelist-body').on('contextmenu.contextmenu_ship', '[data-shipid]', function (e) {
 				this.contextmenu_show($(e.currentTarget), null, e);
 				e.preventDefault();
-			}).bind(this)).on('click.contextmenu_ship', '.row[data-shipid]>strong>em', (function (e) {
-				this.contextmenu_show($(e.currentTarget).parent().parent());
-				e.stopImmediatePropagation();
-				e.stopPropagation();
-			}).bind(this)).on('click', '.row[data-shipid]', (function (e, forceInfos) {
+			}.bind(this)).on('click', '[data-shipid]', function (e, forceInfos) {
 				if (e.target.tagName.toLowerCase() == 'label') {
-					this.checkbox[e.currentTarget.getAttribute('data-shipid')].prop('checked', !this.checkbox[e.currentTarget.getAttribute('data-shipid')].prop('checked')).trigger('change');
+					this.check(e.currentTarget);
+					e.stopPropagation();
+				} else if (e.target.tagName.toLowerCase() == 'em') {
+					this.contextmenu_show($(e.target), e.currentTarget.getAttribute('data-shipid'));
+					e.preventDefault();
+					e.stopImmediatePropagation();
 					e.stopPropagation();
 				} else if (!forceInfos && _frame.app_main.is_mode_selection()) {
-						e.preventDefault();
-						e.stopImmediatePropagation();
-						e.stopPropagation();
-						if (!e.currentTarget.getAttribute('data-donotcompare')) _frame.app_main.mode_selection_callback(e.currentTarget.getAttribute('data-shipid'));
-					}
-			}).bind(this));
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					e.stopPropagation();
+					if (!e.currentTarget.getAttribute('data-donotcompare')) _frame.app_main.mode_selection_callback(e.currentTarget.getAttribute('data-shipid'));
+				}
+			}.bind(this));
 
 			this.dom.msg_container = this.dom.container.children('.msgs');
 			if (_config.get('hide-compareinfos')) this.dom.msg_container.removeAttr('data-msgs');else this.dom.msg_container.attr('data-msgs', 'compareinfos');
@@ -7628,36 +8345,37 @@ var TablelistShips = (function (_Tablelist2) {
 			this.parse_all_items();
 
 			var compareinfos = this.dom.msg_container.children('.compareinfos');
-			compareinfos.children('button').on('click', (function () {
+			compareinfos.children('button').on('click', function () {
 				this.dom.msg_container.removeAttr('data-msgs');
 				_config.set('hide-compareinfos', !0);
-			}).bind(this));
-			this.dom.msg_container.children('.comparestart').on('click', (function () {
+			}.bind(this));
+			this.dom.msg_container.children('.comparestart').on('click', function () {
 				this.compare_start();
-			}).bind(this));
+			}.bind(this));
 		}
 	}, {
 		key: 'parse_all_items',
 		value: function parse_all_items() {
 			var header_index = -1;
 
-			this.dom.tbody.children('p.title,p.row').each((function (index, tr) {
+			this.dom.tbody.children('h4, dl').each(function (index, tr) {
 				var _this11 = this;
 
 				tr = $(tr);
-				if (tr.hasClass('title')) {
+				tr.attr('trindex', index);
+				if (tr[0].tagName == 'H4') {
 					(function () {
 						header_index++;
 						_this11.last_item = tr;
 						var checkbox = tr.find('input[type="checkbox"]').on({
-							'change': function change() {
-								checkbox.data('ships').filter(':visible').each(function (index, element) {
-									$(element).data('checkbox').prop('checked', checkbox.prop('checked')).trigger('change', [!0]);
-								});
-							},
+							'change': function () {
+								checkbox.data('ships').filter(':visible').each(function (index, el) {
+									this.check(el, checkbox.prop('checked'), !0);
+								}.bind(this));
+							}.bind(_this11),
 							'docheck': function docheck() {
 								var trs = checkbox.data('ships').filter(':visible'),
-								    checked = trs.filter('[compare-checked=true]');
+								    checked = trs.filter('[compare="true"]');
 								if (!checked.length) {
 									checkbox.prop({
 										'checked': !1,
@@ -7677,41 +8395,87 @@ var TablelistShips = (function (_Tablelist2) {
 							}
 						}).data('ships', $());
 						_this11.header_checkbox[header_index] = checkbox;
+
+						_this11.mode_selection_filters.add($('<input/>', {
+							'value': header_index,
+							'type': 'checkbox',
+							'class': 'shiptype',
+							'id': 'shiptype-' + header_index
+						}).prop('checked', !header_index).prependTo(_this11.dom.container));
+						$('<label/>', {
+							'for': 'shiptype-' + header_index,
+							'class': 'shiptype'
+						}).prependTo(tr);
 					})();
-				} else {
-					(function () {
-						var donotcompare = tr.attr('data-donotcompare'),
-						    ship_id = tr.attr('data-shipid'),
-						    checkbox = tr.find('input[type="checkbox"]'),
-						    title_index = header_index;
+				} else if (tr.attr('data-shipid')) {
+					var ship_id = tr.attr('data-shipid'),
+					    title_index = header_index;
 
-						checkbox.prop('disabled', donotcompare).on('change', (function (e, not_trigger_check) {
-							if (checkbox.prop('checked')) tr.attr('compare-checked', !0);else tr.removeAttr('compare-checked');
-							this.compare_btn_show(checkbox.prop('checked'));
-							if (!not_trigger_check) this.header_checkbox[title_index].trigger('docheck');
-						}).bind(_this11));
+					tr.attr('titleindex', header_index);
 
-						_this11.header_checkbox[title_index].data('ships', _this11.header_checkbox[title_index].data('ships').add(tr));
+					this.header_checkbox[title_index].data('ships', this.header_checkbox[title_index].data('ships').add(tr));
 
-						tr.data('checkbox', checkbox);
+					this.rowsById[ship_id] = tr;
 
-						_this11.checkbox[ship_id] = checkbox;
-					})();
+					this.rows = this.rows.add(tr);
 				}
-			}).bind(this));
+			}.bind(this));
 
-			this.compare_checkbox = this.dom.tbody.find('input[type="checkbox"].compare');
 			this.mark_high();
 			this.thead_redraw();
 			_frame.app_main.loaded('tablelist_' + this._index, !0);
 			delete this.last_item;
 		}
+	}, {
+		key: 'check',
+		value: function check(row, checked, not_trigger_check) {
+			if (row.length) row = row[0];
+
+			if (typeof checked == 'undefined' || checked === null) checked = !(row.getAttribute('compare') == 'true');
+
+			if (checked) row.setAttribute('compare', 'true');else row.removeAttribute('compare');
+
+			this.compare_btn_show(checked);
+
+			if (!not_trigger_check) this.header_checkbox[parseInt(row.getAttribute('titleindex'))].trigger('docheck');
+		}
+	}, {
+		key: 'search',
+		value: function search(query) {
+			if (!this.dom.style) this.dom.style = $('<style/>').appendTo(this.dom.container);
+
+			if (!query) {
+				this.dom.container.removeClass('mod-search');
+				this.dom.filter_container.attr('filter-hide-premodel', this.dom.btn_hide_premodel.prop('checked'));
+				this.dom.style.empty();
+				return query;
+			}
+
+			query = _g.search(query, 'ships');
+
+			if (!query.length) {
+				return query;
+			}
+
+			this.dom.container.addClass('mod-search');
+			this.dom.filter_container.attr('filter-hide-premodel', !1);
+
+			var r = '.tablelist.ships .tablelist-body dl:not(:empty)';
+			query.forEach(function (ship) {
+				r += ':not([data-shipid="' + ship.id + '"])';
+			});
+			r += '{display:none!important}';
+
+			this.dom.style.html(r);
+
+			return query;
+		}
 	}]);
 
 	return TablelistShips;
-})(Tablelist);
+}(Tablelist);
 
-var TablelistEquipments = (function (_Tablelist3) {
+var TablelistEquipments = function (_Tablelist3) {
 	_inherits(TablelistEquipments, _Tablelist3);
 
 	function TablelistEquipments(container, options) {
@@ -7732,7 +8496,6 @@ var TablelistEquipments = (function (_Tablelist3) {
 	_createClass(TablelistEquipments, [{
 		key: 'apply_types',
 		value: function apply_types() {
-			console.log('types: ' + TablelistEquipments.types);
 			this.dom.filter_types.removeAttr('class');
 
 			if (TablelistEquipments.types.length) {
@@ -7749,31 +8512,39 @@ var TablelistEquipments = (function (_Tablelist3) {
 
 			if (TablelistEquipments.shipId && $.inArray(_g.data.ships[TablelistEquipments.shipId].type, [9, 10, 11]) > -1) {
 				var k = 0,
-				    _el = undefined;
+				    _el2 = undefined,
+				    t = undefined;
 
 				while (this.dom.types[k++].attr('data-equipmentcollection') != 3 || $.inArray(parseInt(this.dom.types[k].attr('data-type')) || null, TablelistEquipments.types) <= -1) {
-					_el = this.dom.types[k + 1];
+					_el2 = this.dom.types[k + 1];
 				}
 
-				_el = _el || this.dom.types[0];
+				_el2 = _el2 || this.dom.types[0];
 
 				this.dom.type_radios[3].prop('checked', !0).trigger('change');
-				this.dom.tbody.scrollTop(_el[0].offsetTop || 0);
+
+				t = _el2[0].offsetTop;
+				if (t) t -= 32;
+				this.dom.tbody.scrollTop(t || 0);
 				return;
 			}
 
 			if (TablelistEquipments.types.length) {
 				var k = 0,
-				    _el2 = undefined;
+				    _el3 = undefined,
+				    t = undefined;
 
 				while ($.inArray(parseInt(this.dom.types[k++].attr('data-type')) || null, TablelistEquipments.types) <= -1) {
-					_el2 = this.dom.types[k];
+					_el3 = this.dom.types[k];
 				}
 
-				_el2 = _el2 || this.dom.types[0];
+				_el3 = _el3 || this.dom.types[0];
 
-				this.dom.type_radios[parseInt(_el2.attr('data-equipmentcollection')) || 1].prop('checked', !0).trigger('change');
-				this.dom.tbody.scrollTop(_el2[0].offsetTop || 0);
+				this.dom.type_radios[parseInt(_el3.attr('data-equipmentcollection')) || 1].prop('checked', !0).trigger('change');
+
+				t = _el3[0].offsetTop;
+				if (t) t -= 32;
+				this.dom.tbody.scrollTop(t || 0);
 			}
 		}
 	}, {
@@ -7783,14 +8554,14 @@ var TablelistEquipments = (function (_Tablelist3) {
 			this.dom.filters = this.dom.filter_container.children('.filters');
 
 			this.dom.type_radios = {};
-			this.dom.container.children('input[type="radio"][name="equipmentcollection"]').each((function (i, radio) {
+			this.dom.container.children('input[type="radio"][name="equipmentcollection"]').each(function (i, radio) {
 				radio = $(radio);
 				var val = parseInt(radio.val());
-				this.dom.type_radios[val] = radio.prop('checked', val == 1).on('change', (function () {
+				this.dom.type_radios[val] = radio.prop('checked', val == 1).on('change', function () {
 					this.dom.tbody.scrollTop(0);
 					this.thead_redraw();
-				}).bind(this));
-			}).bind(this));
+				}.bind(this));
+			}.bind(this));
 
 			this.dom.filter_types = this.dom.container.children('input[name="types"][type="hidden"]');
 
@@ -7805,10 +8576,10 @@ var TablelistEquipments = (function (_Tablelist3) {
 			if (!_config.get('hide-equipmentsinfos')) this.dom.msg_container.attr('data-msgs', 'equipmentsinfos');else this.dom.msg_container.removeAttr('data-msgs');
 
 			var equipmentsinfos = this.dom.msg_container.children('.equipmentsinfos');
-			equipmentsinfos.children('button').on('click', (function () {
+			equipmentsinfos.children('button').on('click', function () {
 				this.dom.msg_container.removeAttr('data-msgs');
 				_config.set('hide-equipmentsinfos', !0);
-			}).bind(this));
+			}.bind(this));
 		}
 	}, {
 		key: 'parse_all_items',
@@ -7818,9 +8589,9 @@ var TablelistEquipments = (function (_Tablelist3) {
 
 			var header_index = -1;
 
-			this.dom.tbody.children('p.title,p.row').each((function (index, tr) {
+			this.dom.tbody.children('h4, dl').each(function (index, tr) {
 				tr = $(tr);
-				if (tr.hasClass('title')) {
+				if (tr[0].tagName == 'H4') {
 					header_index++;
 					this.dom.types[header_index] = tr;
 				} else {
@@ -7838,7 +8609,7 @@ var TablelistEquipments = (function (_Tablelist3) {
 						});
 					})();
 				}
-			}).bind(this));
+			}.bind(this));
 
 			this.thead_redraw();
 			this.generated = !0;
@@ -7848,7 +8619,7 @@ var TablelistEquipments = (function (_Tablelist3) {
 	}]);
 
 	return TablelistEquipments;
-})(Tablelist);
+}(Tablelist);
 
 TablelistEquipments.gen_helper_equipable_on = function (type_id) {
 	var equipable_on = '';
@@ -7863,7 +8634,7 @@ TablelistEquipments.types = [];
 TablelistEquipments.shipId = null;
 TablelistEquipments.shipIdLast = null;
 
-var TablelistFleets = (function (_Tablelist4) {
+var TablelistFleets = function (_Tablelist4) {
 	_inherits(TablelistFleets, _Tablelist4);
 
 	function TablelistFleets(container, options) {
@@ -7886,20 +8657,16 @@ var TablelistFleets = (function (_Tablelist4) {
 		_this13.dom.filter_container = $('<div class="options" viewtype="card"/>').appendTo(_this13.dom.container);
 		_this13.dom.filters = $('<div class="filters"/>').appendTo(_this13.dom.filter_container);
 
-		_this13.dom.btn_new = $('<button class="new" icon="import"/>').html('新建/导入').on('click', (function (e, target) {
+		_this13.dom.btn_new = $('<button class="new" icon="import"/>').html('新建/导入').on('click', function (e, target) {
 			this.btn_new(target);
-		}).bind(_this13)).appendTo(_this13.dom.filters);
+		}.bind(_this13)).appendTo(_this13.dom.filters);
 		if (TablelistFleets.support.buildfile) {
 			_this13.dom.btn_exportFile = $('<button class="export" icon="floppy-disk"/>').html('导出配置文件').on('click', function () {
 				_db.fleets.persistence.compactDatafile();
-				if (_g.isClient) {
-					_g.file_save_as(_db.fleets.filename, 'fleets.json');
+				if (_g.isNWjs) {
+					_g.save(_db.fleets.filename, 'fleets.json');
 				} else {
 					(function () {
-						if (!TablelistFleets.btn_exportFile_link) {
-							TablelistFleets.btn_exportFile_link = document.createElement('a');
-							TablelistFleets.btn_exportFile_link.download = 'fleets.json';
-						}
 						_frame.app_main.loading_start('tablelist_fleets_export', !1);
 						var data = '';
 						_db.fleets.find({}, function (err, docs) {
@@ -7910,10 +8677,9 @@ var TablelistFleets = (function (_Tablelist4) {
 									data += JSON.stringify(doc) + '\n';
 								});
 								var blob = new Blob([data], { type: "application/json" });
-								TablelistFleets.btn_exportFile_link.href = URL.createObjectURL(blob);
-								TablelistFleets.btn_exportFile_link.click();
-								_frame.app_main.loading_complete('tablelist_fleets_export');
+								_g.save(URL.createObjectURL(blob), 'fleets.json');
 							}
+							_frame.app_main.loading_complete('tablelist_fleets_export');
 						});
 					})();
 				}
@@ -7926,65 +8692,67 @@ var TablelistFleets = (function (_Tablelist4) {
 			'html': '默认司令部等级',
 			'data-tip': '如果舰队配置没有设置司令部等级，<br/>则会使用该默认数值<br/>司令部等级会影响索敌能力的计算'
 		}).on({
-			'mouseenter mouseleave': (function (e) {
+			'mouseenter mouseleave': function (e) {
 				if (_p.tip.is_showing && !_p.tip.timeout_fade && this.dom.setting_hqlv_input.is(':focus')) {
 					e.stopImmediatePropagation();
 					e.stopPropagation();
 				}
-			}).bind(_this13)
+			}.bind(_this13)
 		}).append(_this13.dom.setting_hqlv_input = $('<input/>', {
 			'type': 'number',
 			'min': 0,
-			'max': 150
+			'max': _g.shipMaxLv
 		}).val(Lockr.get('hqLvDefault', _g.defaultHqLv)).on({
-			'input': (function () {
+			'input': function () {
 				_g.updateDefaultHqLv(this.dom.setting_hqlv_input.val());
-			}).bind(_this13),
-			'focus.tipshow': (function () {
+			}.bind(_this13),
+			'focus.tipshow': function () {
 				this.dom.setting_hqlv_input.trigger('tipshow');
-			}).bind(_this13),
-			'blur.tiphide': (function () {
+			}.bind(_this13),
+			'blur.tiphide': function () {
 				this.dom.setting_hqlv_input.trigger('tiphide');
-			}).bind(_this13),
+			}.bind(_this13),
 			'click': function click(e) {
 				e.stopImmediatePropagation();
 				e.stopPropagation();
 			}
 		})).appendTo(_this13.dom.buttons_right);
-		$body.on('update_defaultHqLv.update_fleets_hqlv_input', (function (e, val) {
+		$body.on('update_defaultHqLv.update_fleets_hqlv_input', function (e, val) {
 			this.dom.setting_hqlv_input.val(val);
-		}).bind(_this13));
-		_this13.dom.btn_settings = $('<button icon="cog"/>').on('click', (function () {
+		}.bind(_this13));
+		_this13.dom.btn_settings = $('<button icon="cog"/>').on('click', function () {
 			this.btn_settings();
-		}).bind(_this13)).appendTo(_this13.dom.buttons_right);
+		}.bind(_this13)).appendTo(_this13.dom.buttons_right);
 
-		_this13.dom.table = $('<div class="tablelist-container" scrollbody/>').appendTo(_this13.dom.container).on('focus.number_input_select', 'input[type="number"]', function (e) {
-			e.currentTarget.select();
-		});
-		_this13.dom.thead = $('<div class="tablelist-header"/>').appendTo(_this13.dom.table);
-		_this13.dom.tbody = $('<div class="tablelist-body"/>').appendTo(_this13.dom.table).on('contextmenu.contextmenu_fleet', '.row[data-fleetid]', (function (e) {
+		_this13.dom.table = $('<div class="tablelist-container"/>').appendTo(_this13.dom.container);
+		_this13.dom.thead = $('<dl/>').appendTo($('<div class="tablelist-header"/>').appendTo(_this13.dom.table));
+		_this13.dom.tbody = $('<div class="tablelist-body" scrollbody/>').appendTo(_this13.dom.table).on('contextmenu.contextmenu_fleet', '[data-fleetid]', function (e) {
 			this.contextmenu_show($(e.currentTarget), null, e);
 			e.preventDefault();
-		}).bind(_this13)).on('click.contextmenu_fleet', '.row[data-fleetid]>strong>em', (function (e) {
+		}.bind(_this13)).on('click.contextmenu_fleet', '[data-fleetid]>dt>em', function (e) {
 			this.contextmenu_show($(e.currentTarget).parent().parent(), $(e.currentTarget));
 			e.stopImmediatePropagation();
 			e.stopPropagation();
-		}).bind(_this13));
+		}.bind(_this13));
 
-		_this13.columns.forEach((function (v, i) {
+		_this13.columns.forEach(function (v, i) {
 			if ((typeof v === 'undefined' ? 'undefined' : _typeof(v)) == 'object') {
-				$('<span data-stat="' + v[1] + '"/>', {
-					'data-stat': v[1],
+				$('<dd/>', {
+					'stat': v[1],
 					'html': v[0]
 				}).appendTo(this.dom.thead);
 			} else {
-				$('<strong/>').html(v[0]).appendTo(this.dom.thead);
+				$('<dt/>').html(v[0]).appendTo(this.dom.thead);
 			}
-		}).bind(_this13));
+		}.bind(_this13));
 
-		$('<div class="nocontent container"/>').append($($('<div/>').append($('<span>').html('暂无舰队配置')).append($('<button>').html('新建/导入').on('click', (function (e) {
+		$('<div class="nocontent container"/>').append($($('<div/>').append($('<span>').html('暂无舰队配置')).append($('<button>').html('新建/导入').on('click', function (e) {
 			this.dom.btn_new.trigger('click', [e]);
-		}).bind(_this13))))).appendTo(_this13.dom.table);
+		}.bind(_this13))))).appendTo(_this13.dom.table);
+
+		_this13.dom.container.on('focus.number_input_select', 'input[type="number"]', function (e) {
+			e.currentTarget.select();
+		});
 
 		_this13.genlist();
 		return _this13;
@@ -8152,25 +8920,24 @@ var TablelistFleets = (function (_Tablelist4) {
 						sorted[cur.theme].push(i);
 					});
 
-					for (var _i16 in sorted) {
+					for (var _i20 in sorted) {
 						k = 0;
 
 						while (k < _this14.flexgrid_empty_count) {
-							if (!k) _this14.flexgrid_ph = $('<p class="empty" data-fleetid="-1" data-trindex="99999"/>').appendTo(_this14.dom.tbody);else $('<p class="empty" data-fleetid="-1" data-trindex="99999"/>').appendTo(_this14.dom.tbody);
+							if (!k) _this14.flexgrid_ph = $('<dl data-fleetid trindex="99999"/>').appendTo(_this14.dom.tbody);else $('<dl data-fleetid trindex="99999"/>').appendTo(_this14.dom.tbody);
 							k++;
 						}
 
-						sorted[_i16].forEach((function (index) {
-							setTimeout((function (i) {
+						sorted[_i20].forEach(function (index) {
+							setTimeout(function (i) {
 								this.append_item(arr[i]);
 								count++;
 								if (count >= arr.length - 1) deferred.resolve();
-							}).bind(this)(index), 0);
-						}).bind(_this14));
+							}.bind(this)(index), 0);
+						}.bind(_this14));
 
-						$('<p/>', {
-							'class': 'title',
-							'data-trindex': ++_this14.trIndex,
+						$('<h4/>', {
+							'trindex': ++_this14.trIndex,
 							'html': '&nbsp;'
 						}).appendTo(_this14.dom.tbody);
 						_this14.trIndex++;
@@ -8178,16 +8945,16 @@ var TablelistFleets = (function (_Tablelist4) {
 				})();
 			} else {
 				while (k < this.flexgrid_empty_count) {
-					if (!k) this.flexgrid_ph = $('<p class="empty" data-fleetid="-1" data-trindex="99999"/>').appendTo(this.dom.tbody);else $('<p class="empty" data-fleetid="-1" data-trindex="99999"/>').appendTo(this.dom.tbody);
+					if (!k) this.flexgrid_ph = $('<dl data-fleetid trindex="99999"/>').appendTo(this.dom.tbody);else $('<dl data-fleetid trindex="99999"/>').appendTo(this.dom.tbody);
 					k++;
 				}
 
-				arr.forEach((function (currentValue, i) {
-					setTimeout((function (i) {
+				arr.forEach(function (currentValue, i) {
+					setTimeout(function (i) {
 						this.append_item(arr[i]);
 						if (i >= arr.length - 1) deferred.resolve();
-					}).bind(this)(i), 0);
-				}).bind(this));
+					}.bind(this)(i), 0);
+				}.bind(this));
 			}
 
 			if (!arr.length) deferred.resolve();
@@ -8204,8 +8971,8 @@ var TablelistFleets = (function (_Tablelist4) {
 				this.trIndex++;
 			}
 
-			var tr = $('<p class="row"/>').attr({
-				'data-trindex': index,
+			var tr = $('<dl/>').attr({
+				'trindex': index,
 				'data-fleetid': data._id || 'PLACEHOLDER',
 
 				'data-infos': '[[FLEET::' + data._id + ']]',
@@ -8225,11 +8992,11 @@ var TablelistFleets = (function (_Tablelist4) {
 							j++;
 						}
 						html += '</i>';
-						$('<strong/>').attr('data-value', data['name']).html(html + '<strong>' + data['name'] + '</strong>' + '<em></em>').appendTo(tr);
+						$('<dt/>').attr('value', data['name']).html(html + '<strong>' + data['name'] + '</strong>' + '<em></em>').appendTo(tr);
 						break;
 					default:
 						var datavalue = data[column[1]];
-						$('<span/>').attr('data-value', datavalue).html(datavalue).appendTo(tr);
+						$('<dd/>').attr('value', datavalue).html(datavalue).appendTo(tr);
 						break;
 				}
 			});
@@ -8244,37 +9011,47 @@ var TablelistFleets = (function (_Tablelist4) {
 			if (!this.menu_new) {
 				this.menu_new = new _menu({
 					'target': this.dom.btn_new,
-					'items': [$('<div class="menu_fleets_new"/>').append($('<menuitem/>').html('新建配置').on('click', (function () {
+					'className': 'menu-fleets-new',
+					'items': [$('<div class="menu-fleets-new"/>').append($('<menuitem/>').html('新建配置').on('click', function () {
 						this.action_new();
-					}).bind(this))).append($('<menuitem/>').html('导入配置代码').on('click', (function () {
+					}.bind(this))).append($('<menuitem/>').html('导入配置代码').on('click', function () {
 						if (!TablelistFleets.modalImport) {
 							TablelistFleets.modalImport = $('<div/>').append(TablelistFleets.modalImportTextarea = $('<textarea/>', {
 								'placeholder': '输入配置代码...'
-							})).append($('<p/>').html('* 配置代码兼容<a href="http://www.kancolle-calc.net/deckbuilder.html">艦載機厨デッキビルダー</a>')).append(TablelistFleets.modalImportBtn = $('<button class="button"/>').html('导入'));
+							})).append($('<p/>').html('* 配置代码兼容<a href="http://www.kancolle-calc.net/deckbuilder.html">艦載機厨デッキビルダー</a>')).append($('<p class="aircraftimportmax"/>').append(TablelistFleets.modalImportCheckAircraftMax = $('<input/>', {
+								'type': 'checkbox',
+								'id': '_input_g' + _g.inputIndex
+							}).prop('checked', Lockr.get('fleetlist-option-aircraftimportmax'))).append($('<label/>', {
+								'class': 'checkbox',
+								'for': '_input_g' + _g.inputIndex++,
+								'html': '飞行器熟练度自动提升至'
+							}))).append(TablelistFleets.modalImportBtn = $('<button class="button"/>').html('导入').on('click', function () {
+								var val = TablelistFleets.modalImportTextarea.val();
+
+								if (val) {
+									val = JSON.parse(val);
+									if (!val.length || !val.push) val = _g.kancolle_calc.decode(val);
+									this.action_new({
+										'data': val
+									}, {
+										'aircraftmax': TablelistFleets.modalImportCheckAircraftMax.prop('checked') || Lockr.get('fleetlist-option-aircraftimportmax')
+									});
+									_frame.modal.hide();
+									TablelistFleets.modalImportTextarea.val('');
+								}
+							}.bind(this)));
 						}
 						TablelistFleets.modalImportTextarea.val('');
-						TablelistFleets.modalImportBtn.off('click.import').on('click', (function () {
-							var val = TablelistFleets.modalImportTextarea.val();
 
-							if (val) {
-								val = JSON.parse(val);
-								if (!val.length || !val.push) val = _g.kancolle_calc.decode(val);
-								this.action_new({
-									'data': val
-								});
-								_frame.modal.hide();
-								TablelistFleets.modalImportTextarea.val('');
-							}
-						}).bind(this));
 						_frame.modal.show(TablelistFleets.modalImport, '导入配置代码', {
 							'classname': 'infos_fleet infos_fleet_import',
 							'detach': !0
 						});
-					}).bind(this))).append(TablelistFleets.support.buildfile ? $('<menuitem/>').html('导入配置文件').on('click', (function () {
+					}.bind(this))).append(TablelistFleets.support.buildfile ? $('<menuitem class="import_file"/>').html('导入配置文件').on('click', function () {
 						this.dbfile_selector.trigger('click');
-					}).bind(this)) : null)]
+					}.bind(this)) : null)]
 				});
-				this.dbfile_selector = $('<input type="file" class="none"/>').on('change', (function (e) {
+				this.dbfile_selector = $('<input type="file" class="none"/>').on('change', function (e) {
 					_frame.app_main.loading_start('tablelist_fleets_import', !1);
 					this.dbfile_selector.prop('disabled', !0);
 
@@ -8288,18 +9065,18 @@ var TablelistFleets = (function (_Tablelist4) {
 								if (err) deferred.reject('文件载入失败', new Error(err));else deferred.resolve(data);
 							});
 						} else {
-							for (var _i17 = 0, f = undefined; f = e.target.files[_i17]; _i17++) {
+							for (var _i21 = 0, f = undefined; f = e.target.files[_i21]; _i21++) {
 								var reader = new FileReader();
-								reader.onload = (function (theFile) {
+								reader.onload = function (theFile) {
 									return function (r) {
 										return deferred.resolve(r.target.result);
 									};
-								})(f);
+								}(f);
 								reader.readAsText(f);
 							}
 						}
 						return deferred.promise;
-					}).then((function (data) {
+					}).then(function (data) {
 						this.dbfile_selector.val('');
 
 						var array = [],
@@ -8317,7 +9094,7 @@ var TablelistFleets = (function (_Tablelist4) {
 							}
 						});
 						return deferred.promise;
-					}).bind(this)).then(function (array) {
+					}.bind(this)).then(function (array) {
 						var the_promises = [],
 						    complete = 0;
 
@@ -8341,19 +9118,19 @@ var TablelistFleets = (function (_Tablelist4) {
 						});
 
 						return Q.all(the_promises);
-					}).then((function () {
+					}).then(function () {
 						this.refresh();
 						_g.badgeMsg('成功导入配置');
-					}).bind(this)).catch(function (msg, err) {
+					}.bind(this)).catch(function (msg, err) {
 						_g.log(msg);
 						_g.error(err);
 						_g.badgeError(msg);
-					}).done((function () {
+					}).done(function () {
 						_g.log('import complete');
 						_frame.app_main.loading_complete('tablelist_fleets_import');
 						this.dbfile_selector.prop('disabled', !1);
-					}).bind(this));
-				}).bind(this)).appendTo(this.dom.filters);
+					}.bind(this));
+				}.bind(this)).appendTo(this.dom.filters);
 			}
 
 			if (target && target.clientX) return this.menu_new.show(target.clientX, target.clientY);
@@ -8366,12 +9143,31 @@ var TablelistFleets = (function (_Tablelist4) {
 		}
 	}, {
 		key: 'action_new',
-		value: function action_new(dataDefault) {
+		value: function action_new(dataDefault, options) {
 			dataDefault = dataDefault || {};
+			options = options || {};
 
-			console.log(dataDefault);
+			if (dataDefault.data) {
+				dataDefault.data.forEach(function (fleet) {
+					if (fleet && fleet.push) {
+						fleet.forEach(function (ship) {
+							if (ship && ship.push) {
+								ship[2].forEach(function (equipmentId, index) {
+									if (equipmentId && $.inArray(_g.data.items[equipmentId].type, Formula.equipmentType.Aircrafts) > -1) {
+										if (_g.data.items[equipmentId].rankupgradable) {
+											if (options.aircraftmax) ship[4][index] = 7;else ship[4][index] = ship[3][index] || null;
+										}
+										ship[3][index] = null;
+									}
+								});
+							}
+						});
+					}
+				});
+				InfosFleet.clean(dataDefault.data);
+			}
 
-			_db.fleets.insert(this.new_data(dataDefault), (function (err, newDoc) {
+			_db.fleets.insert(this.new_data(dataDefault, options), function (err, newDoc) {
 				console.log(err, newDoc);
 				if (err) {
 					_g.error(err);
@@ -8381,7 +9177,7 @@ var TablelistFleets = (function (_Tablelist4) {
 						this.menu_new.hide();
 					}
 				}
-			}).bind(this));
+			}.bind(this));
 		}
 	}, {
 		key: 'parse_kancolle_calc_data',
@@ -8422,22 +9218,23 @@ var TablelistFleets = (function (_Tablelist4) {
 		}
 	}, {
 		key: 'genlist',
-		value: function genlist() {
-			Q.fcall(function () {}).then((function () {
+		value: function genlist(callback) {
+			Q.fcall(function () {}).then(function () {
 				return this.loaddata();
-			}).bind(this)).then((function (arr) {
+			}.bind(this)).then(function (arr) {
 				return this.validdata(arr);
-			}).bind(this)).then((function (arr) {
+			}.bind(this)).then(function (arr) {
 				return this.datacheck(arr);
-			}).bind(this)).then((function (arr) {
+			}.bind(this)).then(function (arr) {
 				return this.append_all_items(arr);
-			}).bind(this)).then((function () {
-				setTimeout((function () {
+			}.bind(this)).then(function () {
+				setTimeout(function () {
 					_frame.app_main.loaded('tablelist_' + this._index, !0);
-				}).bind(this), 100);
-			}).bind(this)).catch(function (err) {
+				}.bind(this), 100);
+			}.bind(this)).catch(function (err) {
 				_g.log(err);
 			}).done(function () {
+				if (callback) callback();
 				_g.log('Fleets list DONE');
 			});
 		}
@@ -8446,17 +9243,18 @@ var TablelistFleets = (function (_Tablelist4) {
 		value: function refresh() {
 			console.log('refresh');
 			this.dom.tbody.empty();
-			this.genlist();
+			this.genlist(function () {
+				this.dom.tbody.scrollTop(this.dom.tbody.attr('scrollbody') || 0);
+			}.bind(this));
 		}
 	}]);
 
 	return TablelistFleets;
-})(Tablelist);
+}(Tablelist);
 
 TablelistFleets.menuOptions_show = function ($el, $el_tablelist) {
-	if (!TablelistFleets.menuOptions) TablelistFleets.menuOptions = new _menu({
-		'className': 'menu-tablelistfleets-options',
-		'items': [$('<menuitem class="mod-checkbox donot_hide option-in-tablelist option-groupbytheme"/>').append($('<input/>', {
+	if (!TablelistFleets.menuOptions) {
+		var items = [$('<menuitem class="mod-checkbox donot_hide option-in-tablelist option-groupbytheme"/>').append($('<input/>', {
 			'type': 'checkbox',
 			'id': '_input_g' + _g.inputIndex
 		}).prop('checked', Lockr.get('fleetlist-option-groupbytheme')).on('change', function (e) {
@@ -8468,6 +9266,14 @@ TablelistFleets.menuOptions_show = function ($el, $el_tablelist) {
 		})).append($('<label/>', {
 			'for': '_input_g' + _g.inputIndex++,
 			'html': '按主题颜色进行分组'
+		})), $('<menuitem class="mod-checkbox donot_hide option-in-tablelist option-aircraftdefaultmax option-aircraftimportmax"/>').append($('<input/>', {
+			'type': 'checkbox',
+			'id': '_input_g' + _g.inputIndex
+		}).prop('checked', Lockr.get('fleetlist-option-aircraftimportmax')).on('change', function (e) {
+			Lockr.set('fleetlist-option-aircraftimportmax', e.target.checked);
+		})).append($('<label/>', {
+			'for': '_input_g' + _g.inputIndex++,
+			'html': '导入配置时提升飞行器熟练度至'
 		})), $('<menuitem class="mod-checkbox donot_hide option-aircraftdefaultmax"/>').append($('<input/>', {
 			'type': 'checkbox',
 			'id': '_input_g' + _g.inputIndex
@@ -8475,14 +9281,29 @@ TablelistFleets.menuOptions_show = function ($el, $el_tablelist) {
 			Lockr.set('fleetlist-option-aircraftdefaultmax', e.target.checked);
 		})).append($('<label/>', {
 			'for': '_input_g' + _g.inputIndex++,
-			'html': '新增飞行器熟练度默认为'
+			'html': '<span class="inline option-in-tablelist">配装时</span>新增飞行器熟练度默认为'
 		})), $('<hr class="option-in-infos"/>'), $('<menuitem/>', {
 			'class': 'option-in-infos',
 			'html': '移除配置'
 		}).on('click', function () {
 			if (InfosFleet.cur) InfosFleet.cur.remove();
-		})]
-	});
+		})];
+
+		if (_g.isNWjs) {
+			items = items.concat([$('<hr class="option-in-tablelist"/>'), $('<div class="option-in-tablelist option-filelocation"/>').html('<span>置配置文件位置</span>').append(TablelistFleets.filelocation_selector = $('<input type="file" class="none" webkitdirectory/>').on('change', function (e) {
+				TablelistFleets.moveBuildsLocation(TablelistFleets.filelocation_selector.val());
+			})).append($('<button type="button">还原</button>').on('click', function () {
+				TablelistFleets.moveBuildsLocation(node.path.join(node.gui.App.dataPath, 'NeDB'));
+			})).append($('<button type="button">选择</button>').on('click', function () {
+				TablelistFleets.filelocation_selector.click();
+			}))]);
+		}
+
+		TablelistFleets.menuOptions = new _menu({
+			'className': 'menu-tablelistfleets-options',
+			'items': items
+		});
+	}
 
 	TablelistFleets.menuOptions.curTablelist = $el_tablelist || null;
 
@@ -8492,3 +9313,70 @@ TablelistFleets.menuOptions_show = function ($el, $el_tablelist) {
 
 TablelistFleets.support = {};
 TablelistFleets.support.buildfile = _g.isNWjs || window.File && window.FileReader && window.FileList && window.Blob && window.URL ? !0 : !1;
+
+TablelistFleets.moveBuildsLocation = function (location) {
+	if (!location) return;
+
+	_frame.app_main.loading_start('tablelist_fleets_newlocation', !1);
+	TablelistFleets.filelocation_selector.prop('disabled', !0);
+
+	var n = 'fleets.json',
+	    j = 1,
+	    exist = !1,
+	    oldPath = Lockr.get('fleets-builds-file', node.path.join(node.gui.App.dataPath, 'NeDB', 'fleets.json'));
+
+	try {
+		exist = node.fs.lstatSync(node.path.join(location, n)) ? !0 : !1;
+	} catch (e) {
+		exist = !1;
+	}
+	while (exist) {
+		n = 'fleets-' + j++ + '.json';
+		try {
+			exist = node.fs.lstatSync(node.path.join(location, n)) ? !0 : !1;
+		} catch (e) {
+			exist = !1;
+		}
+	}
+
+	var path = node.path.join(location, n);
+	Lockr.set('fleets-builds-file', path);
+	_db.fleets = new node.nedb({
+		filename: path
+	});
+
+	node.mkdirp.sync(location);
+	Q.fcall(function () {
+		var deferred = Q.defer(),
+		    cbCalled = !1,
+		    rd = node.fs.createReadStream(oldPath);
+		rd.on("error", function (err) {
+			done(err);
+		});
+		var wr = node.fs.createWriteStream(path);
+		wr.on("error", function (err) {
+			done(err);
+		});
+		wr.on("close", function (ex) {
+			done();
+		});
+		rd.pipe(wr);
+		function done(err) {
+			if (!cbCalled) {
+				deferred.resolve();
+				cbCalled = !0;
+			}
+		}
+		return deferred.promise;
+	}).then(function () {
+		var deferred = Q.defer();
+		_db.fleets.loadDatabase(function () {
+			deferred.resolve();
+		});
+		return deferred.promise;
+	}).done(function () {
+		_frame.app_main.loading_complete('tablelist_fleets_newlocation');
+		TablelistFleets.filelocation_selector.prop('disabled', !1);
+		TablelistFleets.filelocation_selector.val('');
+	});
+};

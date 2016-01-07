@@ -1,1 +1,0 @@
-KCTip.loaded("equipments",150,"zh_cn","<h3><s style=\"background-image: url(http://fleet.diablohu.com/!/assets/images/itemicon/34.png)\"></s><strong>秋刀鱼罐头</strong><small>军粮</small></h3>")
