@@ -109,6 +109,7 @@ if (!_huResized.ver || _huResized.ver < 2.1) {
 	_huResized.throttle = _huResized.throttle || 300;
 	_huResized.startSize = {};
 
+
 	_huResized.viewport = function () {
 		var e = window,
 		    a = 'inner';
@@ -435,6 +436,7 @@ _g.uriHash = function (name, val, value) {
 		}
 		_g.uriHashInited = !0;
 	}
+
 
 	if ((typeof name === 'undefined' ? 'undefined' : _typeof(name)) == 'object') {
 		for (var k in name) {
@@ -887,6 +889,7 @@ _g.init = function () {
 			_g.last.height = _height;
 		},
 
+
 		'basechange': function basechange() {
 			if (_g.isBaseChange) {
 				_g.isBaseChange = !1;
@@ -1225,6 +1228,7 @@ Object.defineProperty(Array.prototype, 'mergeFrom', {
 	}
 });
 
+
 Date.prototype.format = function (pattern, set) {
 	return _g.formatTime(this, pattern, set);
 };
@@ -1278,6 +1282,7 @@ _g.formatTime = function (time, pattern, set) {
 	return pattern.replace(/\%Y/g, time.getFullYear()).replace(/\%m/g, _zero(time.getMonth() + 1)).replace(/\%n/g, time.getMonth() + 1).replace(/\%d/g, _zero(time.getDate())).replace(/\%j/g, time.getDate()).replace(/\%G/g, _G).replace(/\%H/g, _H).replace(/\%i/g, _zero(time.getMinutes())).replace(/\%s/g, _zero(time.getSeconds())).replace(/\%l/g, _g.formatTime_weekdaymappding[time.getDay()]._(_g.formatTime_string));
 };
 
+
 Object.defineProperty(Object.prototype, '_size', {
 	enumerable: !1,
 
@@ -1289,6 +1294,7 @@ Object.defineProperty(Object.prototype, '_size', {
 		return size;
 	}
 });
+
 
 String.prototype.getText = function (table, locale) {
 	return _g.getText(this, table, locale, !0);
@@ -1330,6 +1336,7 @@ _g.hashCode = function (t) {
 
 	t = encodeURIComponent(t);
 
+
 	try {
 		return t.split("").reduce(function (a, b) {
 			a = (a << length) - a + b.charCodeAt(0);return a & a;
@@ -1362,6 +1369,7 @@ String.prototype.escape = function () {
 	return $('<div />').text(this).html();
 };
 
+
 var _tmpl = {
 	export: function _export(value, returnHTML) {
 		if (value.attr && returnHTML) return value.prop('outerHTML');
@@ -1370,6 +1378,7 @@ var _tmpl = {
 		if (!value.attr && !returnHTML) return $(value);
 	}
 };
+
 
 var _hotkey = {
 	allowed: !0,
@@ -1672,6 +1681,7 @@ _form.element = function (type, name, id, value, options) {
 	return element;
 };
 
+
 _frame.dom = {};
 _frame.main = {
 	'last': {}
@@ -1681,6 +1691,7 @@ _frame.global = {
 	key_registerd: [],
 
 	esc_funcs: [],
+
 
 	allowKeyNav: !0,
 	esc_register: function esc_register(func) {
@@ -1757,9 +1768,7 @@ _menu.prototype.defaults = {
 
 	'target': null,
 
-	'className': null,
-
-	'showBlured': !0
+	'className': null
 };
 
 _menu.prototype.init = function () {
@@ -1803,9 +1812,7 @@ _menu.prototype.init = function () {
 	}
 	this.dom.body.find('input[type="checkbox"]+label').addClass('checkbox');
 
-	if (this.settings.showBlured && _huCss.csscheck_full('backdrop-filter')) {
-		this.dom.menu.addClass('mod-blur-backdrop');
-	} else if (this.settings.showBlured && typeof node != 'undefined') {
+	if (typeof node != 'undefined') {
 		this.dom.menu.addClass('mod-blur-shot');
 	}
 
@@ -1851,7 +1858,7 @@ _menu.prototype.show = function (targetEl, x, y) {
 		'left': left + menu_width > viewport_width ? viewport_width - menu_width : left
 	});
 
-	if (this.settings.showBlured && typeof node != 'undefined') {
+	if (typeof node != 'undefined') {
 		node.win.capturePage(this.capturePage_callback.bind(this), 'jpg', 'datauri');
 	} else {
 		this.dom.menu.addClass('on');
@@ -1923,6 +1930,7 @@ _frame.menu = {
 	}
 };
 
+
 _frame.modal = {
 	dom: {},
 
@@ -1946,6 +1954,8 @@ _frame.modal = {
 
 		content.appendTo(this.dom.content);
 
+		if (settings.onClose) _frame.modal.dom.container.on('close', settings.onClose);
+
 		if (title) {
 			this.dom.titlebar.html(title);
 			this.dom.container.addClass('hastitle');
@@ -1960,9 +1970,7 @@ _frame.modal = {
 		});
 
 		if (settings.showBlured) {
-			if (_huCss.csscheck_full('backdrop-filter')) {
-				this.dom.container.addClass('mod-blur-backdrop');
-			} else if (!this.dom.blured && typeof node != 'undefined') {
+			if (!this.dom.blured && typeof node != 'undefined') {
 				node.win.capturePage(function (datauri) {
 					_frame.modal.dom.blured = $('<img/>').attr('src', datauri).appendTo(_frame.modal.dom.bg);
 				}, 'jpg', 'datauri');
@@ -1992,6 +2000,7 @@ _frame.modal = {
 		this.dom.container.removeClass('on');
 	},
 
+
 	reset: function reset() {
 		this.resetContent();
 
@@ -2000,7 +2009,7 @@ _frame.modal = {
 				this.dom.blured.remove();
 				this.dom.blured = null;
 			}
-			this.dom.container.removeClass('mod-blur-backdrop mod-blur-shot');
+			this.dom.container.removeClass('mod-blur-shot');
 		}
 	},
 
@@ -2031,6 +2040,7 @@ _frame.modal.init = function () {
 					_frame.modal.dom.container.removeClass('show');
 
 					_frame.modal.showing = !1;
+					_frame.modal.dom.container.trigger('close').off('close');
 				}, 10);
 			}
 		}
@@ -2050,6 +2060,7 @@ _frame.modal.init = function () {
 	this.is_init = !0;
 	return !0;
 };
+
 
 _p.tip = {
 	pos: 'bottom',
@@ -2078,9 +2089,7 @@ _p.tip = {
 
 		this.dom_body = $('<div class="body"/>').appendTo(this.dom);
 
-		if (_huCss.csscheck_full('backdrop-filter')) {
-			this.dom.addClass('mod-blur-backdrop');
-		} else if (typeof node != 'undefined') {
+		if (typeof node != 'undefined') {
 			this.dom.addClass('mod-blur-shot');
 			this.dom_bluredbg = $('<div/>').appendTo($('<div class="bluredbg"/>').appendTo(this.dom));
 		}
@@ -2128,6 +2137,7 @@ _p.tip = {
 			this.dom_body.html(cont);
 			_p.initDOM(this.dom_body);
 
+
 			this.curContent = hashcode;
 		}
 
@@ -2154,6 +2164,7 @@ _p.tip = {
 
 	content: function content(cont, el) {
 		el = el || this.el;
+
 
 		return cont;
 	},
@@ -2421,10 +2432,12 @@ $document.ready(function () {
 
 	_g.init();
 
+
 	for (var i in _g.func_last) {
 		_g.func_last[i]();
 	}
 });
+
 
 "use strict";
 
@@ -2438,7 +2451,9 @@ _g.isNWjs = typeof node != 'undefined' || typeof nw != 'undefined';
 
 _g.isWebApp = navigator.standalone || _g.uriSearch('utm_source') == 'web_app_manifest';
 
-_g.isClient = _g.isNWjs || _g.isWebApp;
+_g.isUWP = typeof Windows !== 'undefined' && typeof Windows.UI !== 'undefined' && typeof Windows.UI.Notifications !== 'undefined';
+
+_g.isClient = _g.isNWjs || _g.isWebApp || _g.isUWP;
 
 function eventName(event, name) {
 	name = name ? '.' + name : '';
@@ -2674,11 +2689,13 @@ _frame.app_config = {
 	}
 };
 
+
 "use strict";
 
 if (typeof _g == 'undefined') var _g = {};
 
 _g.lang = _g.lang || 'zh_cn';
+
 
 var Formula = {
 	equipmentType: {
@@ -4037,6 +4054,7 @@ _frame.app_main = {
 
 						if (_frame.app_main.loading_state[url] == 'fail') {
 							console.log('retry');
+							url += (url.substr(url.length - 1) == '/' ? '' : '/') + 'index.html';
 							_frame.app_main.loading_start(url, callback_success, callback_error, callback_successAfter, callback_beforeSend, callback_complete);
 						}
 					}
@@ -4230,6 +4248,7 @@ _frame.app_main = {
 			var dbchain = Q(),
 			    masterDeferred = Q.defer();
 
+
 			_g.dbs.forEach(function (db_name) {
 				dbchain = dbchain.then(function () {
 					var deferred = Q.defer();
@@ -4417,7 +4436,7 @@ var ShareBar = function () {
 				var $el = $(e.target),
 				    site = $el.attr('data-share-site');
 				$el.attr({
-					'href': 'http://www.jiathis.com/send/?webid=' + site + '&url=' + encodeURIComponent(this.getContent('url', location.href)) + '&title=' + encodeURIComponent(this.getContent('title', document.title)) + '&summary=' + encodeURIComponent(this.getContent('summary', $('meta[name="description"]').attr('content'))) + (this.settings.uid ? '&uid=' + this.settings.uid : '') + (this.settings.appkey[site] ? '&appkey=' + this.settings.appkey[site] : ''),
+					'href': 'http://s.jiathis.com/?webid=' + site + '&url=' + encodeURIComponent(this.getContent('url', location.href)) + '&title=' + encodeURIComponent(this.getContent('title', document.title)) + '&summary=' + encodeURIComponent(this.getContent('summary', $('meta[name="description"]').attr('content'))) + (this.settings.uid ? '&uid=' + this.settings.uid : '') + (this.settings.appkey[site] ? '&appkey=' + this.settings.appkey[site] : '') + '&shortUrl=true',
 					'target': '_blank'
 				});
 			}.bind(this));
@@ -4464,6 +4483,7 @@ var duoshuoQuery = {
 		(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
 	}
 })();
+
 _tmpl.improvement = function (equipment, improvement_index, requirement_index, returnHTML) {
 	if (typeof equipment == 'undefined') return !1;
 
@@ -4966,11 +4986,10 @@ _frame.app_main.page['equipments'] = {
 
 _frame.app_main.page['arsenal'] = {};
 _frame.app_main.page['arsenal'].init = function (page) {
-	var akashi = page.find('.akashi');
-	akashi.attr({
+	page.find('.akashi').attr({
 		'animation': Math.floor(Math.random() * 3 + 1)
-	}).on(_g.event.animationiteration, function () {
-		akashi.attr('animation', Math.floor(Math.random() * 3 + 1));
+	}).on(_g.event.animationiteration, function (e) {
+		e.target.setAttribute('animation', Math.floor(Math.random() * 3 + 1));
 	});
 
 	this.elMain = page.children('.main');
@@ -5005,7 +5024,7 @@ _frame.app_main.page['about'].journal_parse = function (raw) {
 	    scrapePtrn = /\[\[([^\:]+)\:([0-9]+)\]\]/gi,
 	    resultHTML = markdown.toHTML(raw);
 
-	while (searchRes = scrapePtrn.exec(raw) !== null) {
+	while ((searchRes = scrapePtrn.exec(raw)) !== null) {
 		try {
 			resultHTML = resultHTML.replace(searchRes[0], _tmpl['link_' + searchRes[1].toLowerCase()](searchRes[2], null, !0));
 		} catch (e) {}
@@ -5013,7 +5032,7 @@ _frame.app_main.page['about'].journal_parse = function (raw) {
 
 	searchRes = null;
 	scrapePtrn = /\[\[([^\:]+)\:([0-9]+)\:TEXT\]\]/gi;
-	while (searchRes = scrapePtrn.exec(raw) !== null) {
+	while ((searchRes = scrapePtrn.exec(raw)) !== null) {
 		try {
 			resultHTML = resultHTML.replace(searchRes[0], _tmpl['textlink_' + searchRes[1].toLowerCase()](searchRes[2], null, !0));
 		} catch (e) {}
@@ -5106,6 +5125,9 @@ _frame.app_main.page['calctp'] = {
 						case 'ao':
 							rS += 14.75 * count;
 							break;
+						case 'bbv':
+							rS += 7 * count;
+							break;
 
 						case 'e75':
 							rS += 5 * count;
@@ -5122,6 +5144,7 @@ _frame.app_main.page['calctp'] = {
 		});
 	}
 };
+
 
 _frame.gg = function () {
 	$.ajax({
@@ -5715,6 +5738,7 @@ BgImg.delete = function (o) {
 	return deferred.promise;
 };
 
+
 _frame.infos = {
 	historyLength: -1,
 	historyCurrent: -1,
@@ -5998,10 +6022,11 @@ _frame.infos.__ship_init = function ($el) {
 	    deltaY = undefined,
 	    isPanning = !1,
 	    isScrollSnap = _huCss.csscheck_full('scroll-snap-type') && !bFirefox,
+	    scrollLock = !1,
+	    mouseWheelLock = !1,
 	    illustMain = $el.find('.illustrations'),
-	    illust = illustMain.children('div'),
+	    illust = illustMain.find('.body'),
 	    imgs = illust.children('span'),
-	    s = imgs.eq(0),
 	    n = 'e' + _g.timeNow(),
 	    labels = illustMain.children('label'),
 	    inputs = illustMain.children('input[type="radio"]').on('change', function (e, scrollTime) {
@@ -6010,23 +6035,38 @@ _frame.infos.__ship_init = function ($el) {
 			i--;
 			inputs.eq(i).prop('checked', !0);
 		}
-		if (isScrollSnap) {
+		if (isScrollSnap && !scrollLock) {
+			scrollLock = !0;
 			illust.off('scroll').animate({
 				scrollLeft: imgs.eq(i)[0].offsetLeft
 			}, typeof scrollTime == 'undefined' ? 200 : scrollTime, function () {
-				illust.on('scroll', scrollHandler);
+				setTimeout(function () {
+					scrollLock = !1;
+					illust.on('scroll', scrollHandler);
+				}, 50);
 			});
 		} else {}
 	}),
 	    illustWidth = 0,
 	    inputCur = 0,
-	    sCount = 1;
+	    sCount = 1,
+	    extraCount = 0;
+
+	function count() {
+		inputCur = parseInt(inputs.filter(':checked').val()) - 1;
+		sCount = Math.ceil(inputs.length / labels.filter(':visible').length);
+		extraCount = illustMain.hasClass('is-singlelast') && sCount == 2 ? 1 : 0;
+	}
+	function countReset() {
+		inputCur = 0;
+		sCount = 0;
+		extraCount = 0;
+	}
 
 	function scrollStart() {
 		originalX = illust.scrollLeft();
 		illustWidth = illust.width();
-		inputCur = parseInt(inputs.filter(':checked').val()) - 1;
-		sCount = Math.floor(illustWidth / (s.outerWidth() * 0.95));
+		count();
 	}
 	function scrollHandler() {
 		if (originalX >= 0) {
@@ -6042,14 +6082,16 @@ _frame.infos.__ship_init = function ($el) {
 		    pDelta = (Math.floor(Math.abs(delta) / illustWidth) + (Math.abs(delta % illustWidth) > illustWidth / 2 ? 1 : 0)) * (x < originalX ? -1 : 1);
 
 		isPanning = !1;
+
 		if (delta !== 0) {
 			var t = inputCur + pDelta * sCount;
 			if (t < 0) t = 0;
-			if (t + sCount > inputs.length) t = inputs.length - sCount;
+			if (t + sCount > inputs.length + extraCount) t = inputs.length - sCount;
 
 			inputs.eq(t).prop('checked', !0);
 		}
 	}
+
 
 	function _resized() {
 		originalX = -1;
@@ -6092,13 +6134,15 @@ _frame.infos.__ship_init = function ($el) {
 				startY = 0;
 				deltaX = 0;
 				deltaY = 0;
-				sCount = 0;
+				countReset();
+
 				isActualPanning = !1;
 				$(document).off('touchmove.infosShipIllust touchend.infosShipIllust touchcancel.infosShipIllust');
 			};
 
 			var panX = function panX() {
 				isPanning = !1;
+
 				var half = inputCur <= 0 && deltaX > 0 || inputCur >= inputs.length - sCount && deltaX < 0;
 				illust.css('transform', 'translateX(' + (deltaX * (half ? 0.3333 : 1) + originalX) + 'px)');
 			};
@@ -6143,7 +6187,7 @@ _frame.infos.__ship_init = function ($el) {
 							t = inputCur - 1;
 						}
 						if (t < 0) t = 0;
-						if (t + sCount > inputs.length) t = inputs.length - sCount;
+						if (t + sCount > inputs.length + extraCount) t = inputs.length - sCount;
 						inputs.eq(t).prop('checked', !0).trigger('change');
 					}
 					panEnd();
@@ -6160,9 +6204,9 @@ _frame.infos.__ship_init = function ($el) {
 						startX = e.originalEvent.targetTouches[0].clientX;
 						startY = e.originalEvent.targetTouches[0].clientY;
 						startTime = _g.timeNow();
-						inputCur = parseInt(inputs.filter(':checked').val()) - 1;
-						sCount = Math.floor(illust.width() / (s.outerWidth() * 0.95));
+						count();
 						illustWidth = illust.width();
+
 
 						$(document).on({
 							'touchmove.infosShipIllust': bodyTouchMove,
@@ -6177,6 +6221,56 @@ _frame.infos.__ship_init = function ($el) {
 			});
 		})();
 	}
+
+	function illustShift(direction, jumpToAnotherEdge) {
+		if (!direction || scrollLock) return;
+
+		var t = -10;
+
+		count();
+
+		if (direction == 1) {
+			t = inputCur + sCount;
+		} else if (direction == -1) {
+			t = inputCur - 1;
+		}
+
+		if (t < 0 && t > -10) {
+			if (jumpToAnotherEdge) t = inputs.length - sCount;else t = 0;
+		} else if (t + sCount > inputs.length + extraCount) {
+			if (jumpToAnotherEdge) t = 0;else t = inputs.length - sCount;
+		}
+
+		countReset();
+
+		if (t >= 0) {
+			if (isScrollSnap) scrollStart();
+			inputs.eq(t).prop('checked', !0).trigger('change');
+		}
+	}
+
+	illustMain.on('mousewheel', function (e) {
+		if (mouseWheelLock || scrollLock || $el.get(0).scrollHeight > $el.get(0).clientHeight) return;
+
+		var direction = undefined;
+
+		if (isScrollSnap && e.originalEvent.deltaY) direction = e.originalEvent.deltaY < 0 ? -1 : 1;else if (e.originalEvent.wheelDelta) direction = e.originalEvent.wheelDelta > 0 ? -1 : 1;else if (e.originalEvent.deltaX) direction = e.originalEvent.deltaX < 0 ? -1 : 1;else if (e.originalEvent.deltaY) direction = e.originalEvent.deltaY < 0 ? -1 : 1;
+
+		if (direction) {
+			mouseWheelLock = !0;
+			illustShift(direction);
+			setTimeout(function () {
+				mouseWheelLock = !1;
+			}, 100);
+		}
+	});
+
+	$('<button class="arrow prev" icon="arrow-left"/>').on('click', function () {
+		illustShift(-1, !0);
+	}).insertBefore(inputs.eq(0));
+	$('<button class="arrow next" icon="arrow-right"/>').on('click', function () {
+		illustShift(1, !0);
+	}).insertAfter(labels.eq(labels.length - 1));
 };
 
 _frame.infos.__fleet = function (id, el, d) {
@@ -6272,6 +6366,7 @@ var InfosFleet = function () {
 			});
 
 			this.data = d;
+
 
 			var i = 0,
 			    defaultHqLv = Lockr.get('hqLvDefault', _g.defaultHqLv);
@@ -6386,7 +6481,7 @@ var InfosFleet = function () {
 							title: function title() {
 								return InfosFleet.menuCur.data.name;
 							},
-							summary: '分享自 是谁呼叫舰队 (http://fleet.diablohu.com)',
+							summary: '分享自 是谁呼叫舰队（ http://fleet.diablohu.com ）',
 							sites: ['tsina', 'tqq', 'cqq', 'twitter', 'tieba'],
 							uid: 1552359,
 							modifyItem: function modifyItem(el) {
@@ -6909,6 +7004,7 @@ var InfosFleetSubFleet = function () {
 
 		this.elSummary = $('<span class="summary"/>').appendTo(this.el).append($('<span class="summary-item"/>').html('航速').append(this.elSummarySpeed = $('<strong/>').html('-'))).append($('<span class="summary-item"/>').html('制空战力').append(this.elSummaryFighterPower = $('<strong/>').html('-'))).append($('<span class="summary-item"/>').html('索敌能力').append(this.elSummaryLos = $('<strong/>').html('-'))).append($('<span class="summary-item summary-item-consummation"/>').html('总消耗').append(this.elSummaryConsummation = $('<strong/>').html('-')));
 
+
 		this.infosFleet = infosFleet;
 
 		this.updateEl();
@@ -7392,6 +7488,7 @@ var InfosFleetShip = function () {
 			} else {
 				this.elInputLevel.val('');
 			}
+
 
 			this.save();
 		}
@@ -7971,8 +8068,6 @@ var Tablelist = function () {
 			var stat = cell.attr('stat'),
 			    sortData = this.sort_data_by_stat[stat];
 
-			console.log(stat, sortData);
-
 			if (!stat || !sortData) return !1;
 
 			if (stat != this.lastSortedStat) {
@@ -8416,6 +8511,7 @@ var TablelistShips = function (_Tablelist2) {
 					this.header_checkbox[title_index].data('ships', this.header_checkbox[title_index].data('ships').add(tr));
 
 					this.rowsById[ship_id] = tr;
+
 
 					this.rows = this.rows.add(tr);
 				}
@@ -8904,6 +9000,7 @@ var TablelistFleets = function (_Tablelist4) {
 				return 0;
 			});
 
+
 			this.trIndex = 0;
 
 			if (typeof Lockr.get('fleetlist-option-groupbytheme') == 'undefined') Lockr.set('fleetlist-option-groupbytheme', !0);
@@ -8976,10 +9073,10 @@ var TablelistFleets = function (_Tablelist4) {
 				'data-fleetid': data._id || 'PLACEHOLDER',
 
 				'data-infos': '[[FLEET::' + data._id + ']]',
-				'data-theme': data.theme
-			}).data({
-				'initdata': data
+				'data-theme': data.theme,
+				'class': 'link_fleet'
 			});
+
 
 			this.columns.forEach(function (column) {
 				switch (column[1]) {
@@ -9000,6 +9097,8 @@ var TablelistFleets = function (_Tablelist4) {
 						break;
 				}
 			});
+
+			if (isPrepend === !0) return tr;
 
 			if (isPrepend) tr.prependTo(this.dom.tbody);else tr.insertBefore(this.flexgrid_ph);
 
@@ -9052,84 +9151,7 @@ var TablelistFleets = function (_Tablelist4) {
 					}.bind(this)) : null)]
 				});
 				this.dbfile_selector = $('<input type="file" class="none"/>').on('change', function (e) {
-					_frame.app_main.loading_start('tablelist_fleets_import', !1);
-					this.dbfile_selector.prop('disabled', !0);
-
-					var file = this.dbfile_selector.val(),
-					    promise_chain = Q.fcall(function () {});
-
-					promise_chain.then(function () {
-						var deferred = Q.defer();
-						if (_g.isNWjs) {
-							node.fs.readFile(file, 'utf8', function (err, data) {
-								if (err) deferred.reject('文件载入失败', new Error(err));else deferred.resolve(data);
-							});
-						} else {
-							for (var _i21 = 0, f = undefined; f = e.target.files[_i21]; _i21++) {
-								var reader = new FileReader();
-								reader.onload = function (theFile) {
-									return function (r) {
-										return deferred.resolve(r.target.result);
-									};
-								}(f);
-								reader.readAsText(f);
-							}
-						}
-						return deferred.promise;
-					}).then(function (data) {
-						this.dbfile_selector.val('');
-
-						var array = [],
-						    deferred = Q.defer();
-						data.split('\n').forEach(function (line) {
-							if (line) {
-								try {
-									array.push(JSON.parse(line));
-								} catch (e) {
-									deferred.reject('文件格式错误', e);
-								}
-								deferred.resolve(array);
-							} else {
-								deferred.reject('文件无内容');
-							}
-						});
-						return deferred.promise;
-					}.bind(this)).then(function (array) {
-						var the_promises = [],
-						    complete = 0;
-
-						array.forEach(function (data) {
-							var deferred = Q.defer();
-							the_promises.push(deferred.promise);
-
-							_db.fleets.insert(data, function (err) {
-								complete++;
-								if (err && err.errorType == "uniqueViolated") {
-									_db.fleets.update({
-										_id: data._id
-									}, data, {}, function (err, numReplaced) {
-										deferred.resolve();
-										if (err) _g.log(err);else _g.log(numReplaced);
-									});
-								} else {
-										deferred.resolve();
-									}
-							});
-						});
-
-						return Q.all(the_promises);
-					}).then(function () {
-						this.refresh();
-						_g.badgeMsg('成功导入配置');
-					}.bind(this)).catch(function (msg, err) {
-						_g.log(msg);
-						_g.error(err);
-						_g.badgeError(msg);
-					}).done(function () {
-						_g.log('import complete');
-						_frame.app_main.loading_complete('tablelist_fleets_import');
-						this.dbfile_selector.prop('disabled', !1);
-					}.bind(this));
+					return this.importBuilds(this.dbfile_selector);
 				}.bind(this)).appendTo(this.dom.filters);
 			}
 
@@ -9146,6 +9168,7 @@ var TablelistFleets = function (_Tablelist4) {
 		value: function action_new(dataDefault, options) {
 			dataDefault = dataDefault || {};
 			options = options || {};
+
 
 			if (dataDefault.data) {
 				dataDefault.data.forEach(function (fleet) {
@@ -9247,10 +9270,106 @@ var TablelistFleets = function (_Tablelist4) {
 				this.dom.tbody.scrollTop(this.dom.tbody.attr('scrollbody') || 0);
 			}.bind(this));
 		}
+	}, {
+		key: 'importBuilds',
+		value: function importBuilds($selector, filename) {
+			$selector = $selector || this.dbfile_selector;
+
+			_frame.app_main.loading_start('tablelist_fleets_import', !1);
+			$selector.prop('disabled', !0);
+
+			var master_deferred = Q.defer(),
+			    promise_chain = Q.fcall(function () {
+				var deferred = Q.defer();
+				if (_g.isNWjs && filename) {
+					node.fs.readFile(node.path.join($selector.val(), filename), 'utf8', function (err, data) {
+						if (err) deferred.reject('文件载入失败', new Error(err));else deferred.resolve(data);
+					});
+				} else {
+					for (var _i21 = 0, f = undefined; f = $selector[0].files[_i21]; _i21++) {
+						var reader = new FileReader();
+						reader.onload = function (theFile) {
+							return function (r) {
+								return deferred.resolve(r.target.result);
+							};
+						}(f);
+						reader.readAsText(f);
+					}
+				}
+				return deferred.promise;
+			});
+
+			promise_chain = promise_chain.then(function (data) {
+				$selector.val('');
+
+				var array = [],
+				    deferred = Q.defer();
+				data.split('\n').forEach(function (line) {
+					if (line) {
+						try {
+							array.push(JSON.parse(line));
+						} catch (e) {
+							deferred.reject('文件格式错误', e);
+						}
+						deferred.resolve(array);
+					} else {
+						deferred.reject('文件无内容');
+					}
+				});
+				return deferred.promise;
+			}).then(function (array) {
+				var deferred = Q.defer(),
+				    chain = Q();
+				array.forEach(function (data) {
+					chain = chain.then(function () {
+						var deferred = Q.defer();
+						_db.fleets.insert(data, function (err) {
+							if (err) {
+								if (err.errorType == "uniqueViolated") {
+									TablelistFleets.modalBuildConflictShow(data, deferred);
+								} else {
+									deferred.reject(err);
+								}
+							} else {
+								deferred.resolve();
+							}
+						});
+						return deferred.promise;
+					});
+				});
+				chain = chain.then(function () {
+					deferred.resolve();
+				}).catch(function (err) {
+					deferred.reject(err);
+				}).done(function () {
+					_frame.modal.hide();
+				});
+				return deferred.promise;
+			});
+
+			promise_chain = promise_chain.then(function () {
+				this.refresh();
+				_g.badgeMsg('成功导入配置');
+				master_deferred.resolve();
+			}.bind(this)).catch(function (msg, err) {
+				_g.log(msg);
+				_g.error(err, '[舰队] 导入配置文件');
+				_g.badgeError(msg);
+				master_deferred.reject(msg, err);
+			}).done(function () {
+				_frame.app_main.loading_complete('tablelist_fleets_import');
+				$selector.prop('disabled', !1);
+			});
+
+			return master_deferred.promise;
+		}
 	}]);
 
 	return TablelistFleets;
 }(Tablelist);
+
+TablelistFleets.support = {};
+TablelistFleets.support.buildfile = _g.isNWjs || window.File && window.FileReader && window.FileList && window.Blob && window.URL ? !0 : !1;
 
 TablelistFleets.menuOptions_show = function ($el, $el_tablelist) {
 	if (!TablelistFleets.menuOptions) {
@@ -9290,13 +9409,7 @@ TablelistFleets.menuOptions_show = function ($el, $el_tablelist) {
 		})];
 
 		if (_g.isNWjs) {
-			items = items.concat([$('<hr class="option-in-tablelist"/>'), $('<div class="option-in-tablelist option-filelocation"/>').html('<span>置配置文件位置</span>').append(TablelistFleets.filelocation_selector = $('<input type="file" class="none" webkitdirectory/>').on('change', function (e) {
-				TablelistFleets.moveBuildsLocation(TablelistFleets.filelocation_selector.val());
-			})).append($('<button type="button">还原</button>').on('click', function () {
-				TablelistFleets.moveBuildsLocation(node.path.join(node.gui.App.dataPath, 'NeDB'));
-			})).append($('<button type="button">选择</button>').on('click', function () {
-				TablelistFleets.filelocation_selector.click();
-			}))]);
+			items = items.concat(TablelistFleets.menuOptionsItemsBuildsLocation());
 		}
 
 		TablelistFleets.menuOptions = new _menu({
@@ -9311,72 +9424,96 @@ TablelistFleets.menuOptions_show = function ($el, $el_tablelist) {
 	TablelistFleets.menuOptions.show($el);
 };
 
-TablelistFleets.support = {};
-TablelistFleets.support.buildfile = _g.isNWjs || window.File && window.FileReader && window.FileList && window.Blob && window.URL ? !0 : !1;
+TablelistFleets.modalBuildConflictShow = function (data, deferred) {
+	if (!data) return;
 
-TablelistFleets.moveBuildsLocation = function (location) {
-	if (!location) return;
-
-	_frame.app_main.loading_start('tablelist_fleets_newlocation', !1);
-	TablelistFleets.filelocation_selector.prop('disabled', !0);
-
-	var n = 'fleets.json',
-	    j = 1,
-	    exist = !1,
-	    oldPath = Lockr.get('fleets-builds-file', node.path.join(node.gui.App.dataPath, 'NeDB', 'fleets.json'));
-
-	try {
-		exist = node.fs.lstatSync(node.path.join(location, n)) ? !0 : !1;
-	} catch (e) {
-		exist = !1;
+	if (!TablelistFleets.modalBuildConflict) {
+		TablelistFleets.modalBuildConflict = $('<div/>').append($('<h4>原配置</h4>')).append(TablelistFleets.modalBuildConflictOld = $('<dl class="link_fleet"/>')).append($('<h4>新配置</h4>')).append(TablelistFleets.modalBuildConflictNew = $('<dl class="link_fleet"/>')).append($('<p class="actions"/>').append(TablelistFleets.modalBuildConflictButtonConfirm = $('<button/>', {
+			'class': 'button',
+			'html': '替换'
+		})).append(TablelistFleets.modalBuildConflictButtonCancel = $('<button/>', {
+			'class': 'button',
+			'html': '跳过'
+		})));
 	}
-	while (exist) {
-		n = 'fleets-' + j++ + '.json';
-		try {
-			exist = node.fs.lstatSync(node.path.join(location, n)) ? !0 : !1;
-		} catch (e) {
-			exist = !1;
+
+	var dataOld = undefined,
+	    htmlFleet = function htmlFleet(data) {
+		var html = '<i>',
+		    ships = InfosFleet.decompress(data.data)[0] || [],
+		    j = 0;
+		while (j < 6) {
+			if (ships[j] && ships[j][0]) html += '<img class="img' + (_huCss.csscheck_full('mask-image') ? '' : ' nomask') + '" src="' + _g.path.pics.ships + '/' + ships[j][0] + '/0' + (_huCss.csscheck_full('mask-image') ? '.png' : '-mask-2.png') + '" contextmenu="disabled"' + '/>';else html += '<s class="img' + (_huCss.csscheck_full('mask-image') ? '' : ' nomask') + '"/>';
+			j++;
 		}
-	}
+		html += '</i>';
+		html = '<dt>' + html + '<strong>' + data['name'] + '</strong></dt>' + ('<span>最后更新: ' + new Date(data.time_modify).format('%Y年%m月%d日 %G:%i:%s') + '</span>');
+		return html;
+	};
 
-	var path = node.path.join(location, n);
-	Lockr.set('fleets-builds-file', path);
-	_db.fleets = new node.nedb({
-		filename: path
-	});
-
-	node.mkdirp.sync(location);
 	Q.fcall(function () {
-		var deferred = Q.defer(),
-		    cbCalled = !1,
-		    rd = node.fs.createReadStream(oldPath);
-		rd.on("error", function (err) {
-			done(err);
-		});
-		var wr = node.fs.createWriteStream(path);
-		wr.on("error", function (err) {
-			done(err);
-		});
-		wr.on("close", function (ex) {
-			done();
-		});
-		rd.pipe(wr);
-		function done(err) {
-			if (!cbCalled) {
-				deferred.resolve();
-				cbCalled = !0;
+		var _deferred = Q.defer();
+		_db.fleets.find({
+			_id: data._id
+		}, function (err, docs) {
+			if (err) {
+				if (deferred) deferred.reject(err);else _g.log(err);
+			} else {
+				dataOld = docs[0];
+				_deferred.resolve();
 			}
-		}
-		return deferred.promise;
-	}).then(function () {
-		var deferred = Q.defer();
-		_db.fleets.loadDatabase(function () {
-			deferred.resolve();
 		});
-		return deferred.promise;
-	}).done(function () {
-		_frame.app_main.loading_complete('tablelist_fleets_newlocation');
-		TablelistFleets.filelocation_selector.prop('disabled', !1);
-		TablelistFleets.filelocation_selector.val('');
+		return _deferred.promise;
+	}).then(function () {
+		TablelistFleets.modalBuildConflictButtonConfirm.off('click').on('click', function () {
+			_db.fleets.update({
+				_id: data._id
+			}, data, {}, function (err, numReplaced) {
+				if (err) {
+					if (deferred) deferred.reject(err);else _g.log(err);
+				} else {
+					_g.log('build updated ' + numReplaced);
+					if (_frame.infos.contentCache.fleet && _frame.infos.contentCache.fleet[data._id]) {
+						_frame.infos.contentCache.fleet[data._id].remove();
+						delete _frame.infos.contentCache.fleet[data._id];
+						try {
+							delete _frame.app_main.loading_state[_g.state2URI({
+								'infos': 'fleet',
+								'id': data._id
+							})];
+						} catch (e) {}
+					}
+				}
+				if (deferred) deferred.resolve();
+			});
+		});
+
+		if (data.time_modify > dataOld.time_modify) {
+			TablelistFleets.modalBuildConflictButtonConfirm.trigger('click');
+		} else if (data.time_modify < dataOld.time_modify) {
+			TablelistFleets.modalBuildConflictOld.attr({
+				'data-theme': dataOld.theme,
+				'class': 'link_fleet'
+			}).html(htmlFleet(dataOld));
+
+			TablelistFleets.modalBuildConflictNew.attr({
+				'data-theme': data.theme,
+				'class': 'link_fleet'
+			}).html(htmlFleet(data));
+
+			TablelistFleets.modalBuildConflictButtonCancel.off('click').on('click', function () {
+				if (deferred) deferred.resolve();
+			});
+
+			_frame.modal.show(TablelistFleets.modalBuildConflict, '配置冲突', {
+				'classname': 'infos_fleet infos_fleet_import_conflict',
+				'detach': !0,
+				'onClose': function onClose() {
+					if (deferred) deferred.resolve();
+				}
+			});
+		} else {
+			if (deferred) deferred.resolve();
+		}
 	});
 };
